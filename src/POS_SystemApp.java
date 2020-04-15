@@ -7,7 +7,7 @@ public class POS_SystemApp {
 		Cashier c = new Cashier();
 		Register r = new Register();
 
-		System.out.println("Goodbye!");
+		System.out.println(r.toString());
 	}
 
 }

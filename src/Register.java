@@ -32,5 +32,10 @@ public class Register {
 	public void setDate(Date date) {
 		this.date = date;
 	}
+	@Override
+	public String toString() {
+		return "Register [id=" + id + ", cashiers=" + cashiers + ", salePrice=" + salePrice + ", date=" + date
+				+ ", sales=" + sales + "]";
+	}
 
 }

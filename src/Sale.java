@@ -10,4 +10,9 @@ public class Sale {
 	public void setItems(List<Item> items) {
 		this.items = items;
 	}
+
+	@Override
+	public String toString() {
+		return "Sale [items=" + items + "]";
+	}
 }
