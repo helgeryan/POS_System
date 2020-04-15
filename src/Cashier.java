@@ -32,7 +32,7 @@ public class Cashier {
 		return this.password;
 	}
 	
-	public void setPassword(int password) {
+	public void setPassword(String password) {
 		this.password = password;
 	}
 	
