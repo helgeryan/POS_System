@@ -3,7 +3,7 @@ import java.util.List;
 
 public class Register {
 	private int id;	
-	private List<Cashier> cashiers;
+	private List<User> users;
 	private double salePrice;
 	private Date date;
 	private List<Sale> sales;
@@ -14,11 +14,11 @@ public class Register {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public List<Cashier> getCashiers() {
-		return cashiers;
+	public List<User> getUsers() {
+		return users;
 	}
-	public void setCashiers(List<Cashier> cashiers) {
-		this.cashiers = cashiers;
+	public void setCashiers(List<User> users) {
+		this.users = users;
 	}
 	public double getSalePrice() {
 		return salePrice;
@@ -34,7 +34,7 @@ public class Register {
 	}
 	@Override
 	public String toString() {
-		return "Register [id=" + id + ", cashiers=" + cashiers + ", salePrice=" + salePrice + ", date=" + date
+		return "Register [id=" + id + ", cashiers=" + users + ", salePrice=" + salePrice + ", date=" + date
 				+ ", sales=" + sales + "]";
 	}
 
