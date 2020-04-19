@@ -1,3 +1,4 @@
+import javax.swing.*;
 
 public class POS_SystemApp {
 
@@ -6,6 +7,12 @@ public class POS_SystemApp {
 		System.out.println("Hello!");
 		//User u = new User();
 		Register r = new Register();
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				new LoginFrame();
+			}
+		});
 
 		System.out.println(r.toString());
 	}
