@@ -1,0 +1,2 @@
+1,Joe,Smith,cashier,user1,password1
+2,John,Adams,manager,user2,password1
