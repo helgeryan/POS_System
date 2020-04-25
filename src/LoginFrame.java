@@ -28,7 +28,7 @@ public class LoginFrame extends JFrame {
 
                 //System.out.println(le.getUsername() + le.getPassword());
 
-                User user = new User(username, password);
+                User user = new User(0,null,null,null, username, password);
                 authStatus = Authentication.Authenticate(user);
 
                 if(authStatus == true){
