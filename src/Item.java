@@ -41,6 +41,11 @@ public class Item {
 	public void setPendingOrders(int pendingOrders) {
 		this.pendingOrders = pendingOrders;
 	}
+	
+	public String saleToString() {
+		return "Item [name=" + name + ", price=" + price + "]";
+	}
+	
 	@Override
 	public String toString() {
 		return "Item [name=" + name + ", price=" + price + ", threshold=" + threshold + ", quantity=" + quantity

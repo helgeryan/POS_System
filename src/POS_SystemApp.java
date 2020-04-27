@@ -13,8 +13,9 @@ public class POS_SystemApp {
 				new LoginFrame();
 			}
 		});
-
+		
 		System.out.println(r.toString());
+
 	}
 
 }
