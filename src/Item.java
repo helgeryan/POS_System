@@ -1,15 +1,31 @@
 public class Item {
-	private String name;
+	int itemID;
+	private String itemName;
+	private String itemDesc;
 	private double price;
 	private int threshold;
-	private int quantity;
+	private int countOnHand;
+	private int countOnOrder;
 	private String supplier;
-	private int pendingOrders;
-	public String getName() {
-		return name;
+
+	public Item(int ItemID, String ItemName, String ItemDesc, int CountOnHand, int CountOnOrder, int Threshold, double Price, String Supplier){
+		this.itemID = ItemID;
+		this.itemName = ItemName;
+		this.itemDesc = ItemDesc;
+		this.countOnHand = CountOnHand;
+		this.countOnOrder = CountOnOrder;
+		this.price = Price;
+		this.threshold = Threshold;
+		this.supplier = Supplier;
 	}
-	public void setName(String name) {
-		this.name = name;
+
+
+
+	public String getName() {
+		return itemName;
+	}
+	public void setName(String ItemName) {
+		this.itemName = ItemName;
 	}
 	public double getPrice() {
 		return price;
@@ -23,34 +39,69 @@ public class Item {
 	public void setThreshold(int threshold) {
 		this.threshold = threshold;
 	}
-	public int getQuantity() {
-		return quantity;
-	}
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
 	public String getSupplier() {
 		return supplier;
 	}
 	public void setSupplier(String supplier) {
 		this.supplier = supplier;
 	}
-	public int getPendingOrders() {
-		return pendingOrders;
+
+	public int getItemID() {
+		return itemID;
 	}
-	public void setPendingOrders(int pendingOrders) {
-		this.pendingOrders = pendingOrders;
+
+	public void setItemID(int itemID) {
+		this.itemID = itemID;
 	}
-	
+
+	public String getItemName() {
+		return itemName;
+	}
+
+	public void setItemName(String itemName) {
+		this.itemName = itemName;
+	}
+
+	public String getItemDesc() {
+		return itemDesc;
+	}
+
+	public void setItemDesc(String itemDesc) {
+		this.itemDesc = itemDesc;
+	}
+
+	public int getCountOnHand() {
+		return countOnHand;
+	}
+
+	public void setCountOnHand(int countOnHand) {
+		this.countOnHand = countOnHand;
+	}
+
+	public int getCountOnOrder() {
+		return countOnOrder;
+	}
+
+	public void setCountOnOrder(int countOnOrder) {
+		this.countOnOrder = countOnOrder;
+	}
+
 	public String saleToString() {
-		return "Item [name=" + name + ", price=" + price + "]";
+		return "Item [itemName=" + itemName + ", price=" + price + "]";
 	}
-	
+
 	@Override
 	public String toString() {
-		return "Item [name=" + name + ", price=" + price + ", threshold=" + threshold + ", quantity=" + quantity
-				+ ", supplier=" + supplier + ", pendingOrders=" + pendingOrders + "]";
+		return "Item{" +
+				"itemID=" + itemID +
+				", itemName='" + itemName + '\'' +
+				", itemDesc='" + itemDesc + '\'' +
+				", price=" + price +
+				", threshold=" + threshold +
+				", countOnHand=" + countOnHand +
+				", countOnOrder=" + countOnOrder +
+				", supplier='" + supplier + '\'' +
+				'}';
 	}
-	
 }
 
