@@ -24,13 +24,10 @@ public class TestMain {
 		
 		Item return1 = new Item(1,"Apple", "eat it",3,5,0, .99, "cub foods");
 
-		p.getRegisters().get(0).returnSetofItems(2, return1);
+		p.getRegisters().get(0).returnSetofItems(2, return1, return1);
 
 		p.getRegisters().get(0).printSales();
 		System.out.println("Done");
-		p.getInventory().modifyInventory();
-
-		p.getInventory().printInventory();
 	}
 
 }
