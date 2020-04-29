@@ -28,9 +28,7 @@ public class TestMain {
 
 		p.getRegisters().get(0).printSales();
 		System.out.println("Done");
-		p.getInventory().modifyInventory();
 
-		p.getInventory().printInventory();
 	}
 
 }
