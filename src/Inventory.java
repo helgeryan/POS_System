@@ -18,7 +18,7 @@ public class Inventory {
 	private int inventory; // Number of units in stock
 	private int threshold; 
 	private String supplier;
-	
+	//file = "src/inventory.txt"; 
 	//file = "src/itemList.txt"
 	//file = "src/temp.txt" ...need to create
 	
@@ -479,6 +479,22 @@ public class Inventory {
 			System.out.println("Error");
 		}
 	}
+	
+	//appends items to the end of the file
+	public static void appendStrToFile(String fileName, String str) { 
+		try { 
+			BufferedWriter out = new BufferedWriter( new FileWriter(fileName, true)); 
+		 	out.write("\n");
+		 	out.write(str); 
+		 	out.close(); 
+		 } 
+		catch (IOException e) { 
+		 	System.out.println("exception occoured" + e); 
+		 } 
+	 } 
+	
+	
+	
 	
 	//toString
 	@Override
