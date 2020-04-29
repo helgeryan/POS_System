@@ -1,10 +1,21 @@
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class POS_System {
 	private List<Register> registers;
-	private List<Register> users;
+	private List<User> users;
 	private String companyName;
 	private Inventory inventory;
+	
+	public POS_System () throws FileNotFoundException {
+		registers = new ArrayList<Register>();
+		registers.add(new Register());
+		users = new UserList().getUserList();
+		companyName = "Group2 Point of Sale System";
+		inventory = new Inventory();
+	}
+	
 	public List<Register> getRegisters() {
 		return registers;
 	}
