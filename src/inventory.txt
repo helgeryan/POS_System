@@ -1,0 +1,9 @@
+item,price,inventory,threshold,supplier
+Clorox,5.00,150,50,JnJ
+Milk,2.75,50,25,Lakes
+Beer,9.00,50,30,AHB
+Apples,1.25,100,50,FruitCo
+Bananas,.75,200,150,FruitCo
+Cake,6.00,15,8,CakeCo
+Water,.99,35,25,Watermans
+Paper,5.00,25,20,DunderMifflin
