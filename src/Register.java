@@ -8,6 +8,7 @@ public class Register {
 	private double salePrice;
 	private Date date;
 	private List<Sale> sales;
+	private User currUser;
 	private Sale currSale;
 	private long saleId = 0;
 	
@@ -24,6 +25,7 @@ public class Register {
 	public void closeSale() {
 		currSale.setDate();
 		currSale.setId(saleId);
+		currSale.setCashier(currUser);
 		sales.add(currSale);
 	}
 	
@@ -81,6 +83,42 @@ public class Register {
 		this.date = date;
 	}
 	
+	public List<Sale> getSales() {
+		return sales;
+	}
+
+	public void setSales(List<Sale> sales) {
+		this.sales = sales;
+	}
+
+	public User getCurrUser() {
+		return currUser;
+	}
+
+	public void setCurrUser(User currUser) {
+		this.currUser = currUser;
+	}
+
+	public Sale getCurrSale() {
+		return currSale;
+	}
+
+	public void setCurrSale(Sale currSale) {
+		this.currSale = currSale;
+	}
+
+	public long getSaleId() {
+		return saleId;
+	}
+
+	public void setSaleId(long saleId) {
+		this.saleId = saleId;
+	}
+
+	public void setUsers(List<User> users) {
+		this.users = users;
+	}
+
 	public void printSales() {
 		for(Sale sale: sales) {
 			System.out.println(sale + "\n");

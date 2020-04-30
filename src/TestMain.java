@@ -6,6 +6,7 @@ public class TestMain {
 		// TODO Auto-generated method stub
 		POS_System p = new POS_System();
 		p.getInventory().getInventoryList();
+		p.getRegisters().get(0).setCurrUser(new User(1, "Ryan", "Helgeson", "cashier", "user1", "password1"));
 		p.getRegisters().get(0).newSale();
 		p.getRegisters().get(0).addItemToSale(new Item(1,"Book", "read it",3,5,0, 5.99, "barnesandnobles"), 2);
 		p.getRegisters().get(0).addItemToSale(new Item(1,"Book", "read it",3,5,0, 5.99, "barnesandnobles"), 2);

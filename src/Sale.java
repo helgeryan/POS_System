@@ -7,7 +7,16 @@ public class Sale {
 	private double salePrice;
 	private Date date;
 	private long id = 1;
+	private User cashier;
 	
+	public User getCashier() {
+		return cashier;
+	}
+
+	public void setCashier(User cashier) {
+		this.cashier = cashier;
+	}
+
 	public Sale() {
 		items = new ArrayList<Item>();
 		salePrice = 0.0;
@@ -76,6 +85,7 @@ public class Sale {
 	public String toString() {
 		String retString = "Sale at Date/Time " + date + "\n";
 		retString += "Sale ID: " + id + "\n";
+		retString += "Cashier: " + cashier.getFullName() + "\n";
 		for (Item item: items) {
 			retString += item.getName() + " $" + item.getPrice() + "\n";
 		}
