@@ -49,8 +49,6 @@ public class LoginFrame extends JFrame {
 
         private JButton subBtn;
 
-        private LoginListener loginListener;
-
         public LoginPanel(){
 
             Dimension dim = getPreferredSize();
@@ -162,10 +160,6 @@ public class LoginFrame extends JFrame {
         public void clearFields(){
             userNameField.setText(null);
             passwordField.setText(null);
-        }
-
-        public void setLoginListener(LoginListener loginListener) {
-            this.loginListener = loginListener;
         }
     }
 }
