@@ -47,7 +47,7 @@ public class MainFrame extends JFrame {
 
         private JButton invBtn;
         private JButton userBtn;
-
+        private JButton reportingbtn;
         public MainPanel(){
 
             Dimension dim = getPreferredSize();
@@ -57,7 +57,7 @@ public class MainFrame extends JFrame {
 
             invBtn = new JButton("Inventory");
             userBtn = new JButton("User Management");
-
+            reportingbtn = new JButton("Reporting");
             setLayout(new GridBagLayout());
 
             GridBagConstraints gc = new GridBagConstraints();
@@ -90,6 +90,9 @@ public class MainFrame extends JFrame {
                     }
                 }
             });
+
+            gc.gridx = 3;
+            add(reportingbtn);
         }
     }
 
@@ -1135,6 +1138,10 @@ public class MainFrame extends JFrame {
                 add(submitBtn, gc);
             }
         }
+    }
+
+    class ReportingDialog extends JDialog{
+
     }
 
 }
