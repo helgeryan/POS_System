@@ -7,8 +7,9 @@ public class POS_SystemApp {
 		// TODO Auto-generated method stub
 		//User u = new User();
 
+		Register register = new Register();
 		POS_System pos_system = new POS_System();
-
+/*
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				//Register register = new Register();
@@ -20,6 +21,22 @@ public class POS_SystemApp {
 				//new MainFrame(register);
 			}
 		});
+
+
+ */
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				//Register register = new Register();
+				try {
+					new MainFrame(pos_system, register);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+				//new MainFrame(register);
+			}
+		});
+
 
 		//System.out.println(r.toString());
 

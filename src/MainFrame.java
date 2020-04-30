@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class MainFrame extends JFrame {
 
@@ -93,6 +95,13 @@ public class MainFrame extends JFrame {
 
             gc.gridx = 3;
             add(reportingbtn);
+
+            reportingbtn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    ReportingDialog reportingDialog = new ReportingDialog();
+                    reportingDialog.setVisible(true);
+                }
+            });
         }
     }
 
@@ -144,13 +153,13 @@ public class MainFrame extends JFrame {
                 nextSalesID = sales.get(i).getId() + 1;
             }
 
-            registerIDLabel = new JLabel("Register ID: " + register.getId() + " ");
+            registerIDLabel = new JLabel("Register ID: "  ); //+ register.getId() +
             registerIDLabel.setBorder(blackline);
 
             transIDLabel = new JLabel(spaces + "Tran ID: " + nextSalesID + spaces);
             transIDLabel.setBorder(blackline);
 
-            cashierLabel = new JLabel(spaces + "Cashier : "+ register.getCurrUser().getUsername() + spaces);
+            cashierLabel = new JLabel(spaces + "Cashier : "); //+ register.getCurrUser().getUsername() + spaces
             cashierLabel.setBorder(blackline);
 
             dateLabel = new JLabel(spaces + date + spaces);
@@ -335,31 +344,36 @@ public class MainFrame extends JFrame {
 
             public ArrayList getInv() {
 
-                ArrayList<Item> items = new ArrayList<>();
-                try {
-                    items = inventory.getInventoryList();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+                ArrayList<Object> items = new ArrayList<>();
+                //try {
+                //    items = inventory.getInventoryList();
+                // } catch (FileNotFoundException e) {
+                //     e.printStackTrace();
+                // }
 
                 return items;
+
+
             }
 
             public Object[][] addRowsToModel(){
-                ArrayList<Item> inv = getInv();
-                Object[][] data = new Object[inv.size()][8];
 
+
+
+                //Object[][] data = new Object[inv.size()][8];
+/*
                 for(int row = 0; row< inv.size(); row++){
                     int col = 0;
-                    data[row][col] = inv.get(row).getItemID();
                     data[row][++col] = inv.get(row).getItemName();
-                    data[row][++col] = inv.get(row).getItemDesc();
+                    data[row][++col] = inv.get(row).getPrice();
                     data[row][++col] = inv.get(row).getCountOnHand();
                     data[row][++col] = inv.get(row).getThreshold();
-                    data[row][++col] = inv.get(row).getCountOnOrder();
-                    data[row][++col] = inv.get(row).getPrice();
                     data[row][++col] = inv.get(row).getSupplier();
+                    data[row][++col] = inv.get(row).getCountOnOrder();
+
                 }
+
+ */
                 return data;
             }
 
@@ -433,7 +447,7 @@ public class MainFrame extends JFrame {
 
     class NewItemDialog extends JDialog{
         private Inventory inventory = new Inventory();
-        private ArrayList<Item> items = new ArrayList<>();
+        //private ArrayList<Item> items = new ArrayList<>();
 
         private NewItemPanel newItemPanel = new NewItemPanel();
 
@@ -443,7 +457,7 @@ public class MainFrame extends JFrame {
             setLocationRelativeTo(null);
             setVisible(true);
 
-            items = inventory.getInventoryList();
+            //items = inventory.getInventoryList();
 
             add(newItemPanel);
         }
@@ -451,12 +465,12 @@ public class MainFrame extends JFrame {
         private int getNextID() throws FileNotFoundException {
             int nextID = 0;
             Inventory inventory = new Inventory();
-            ArrayList<Item> items = new ArrayList<>();
+            //ArrayList<Item> items = new ArrayList<>();
 
-            items = inventory.getInventoryList();
-            for(int i = 0; i <items.size(); i++){
-                nextID = items.get(i).getItemID() + 1;
-            }
+            //items = inventory.getInventoryList();
+            //for(int i = 0; i <items.size(); i++){
+            //    nextID = items.get(i).getItemID() + 1;
+            //}
             return nextID;
         }
 
@@ -753,6 +767,7 @@ public class MainFrame extends JFrame {
                     public void actionPerformed(ActionEvent actionEvent) {
                         try {
                             NewUserDialog newUserDialog = new NewUserDialog();
+                            dispose();
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -800,7 +815,6 @@ public class MainFrame extends JFrame {
             }
         }
     }
-
     class NewUserDialog extends JDialog{
         private UserList userList = new UserList();
         private ArrayList<User> users = new ArrayList<>();
@@ -813,7 +827,6 @@ public class MainFrame extends JFrame {
             setLocationRelativeTo(null);
             setVisible(true);
             users = userList.getUserList();
-
 
             add(newUserPanel);
         }
@@ -879,11 +892,12 @@ public class MainFrame extends JFrame {
                         User user = new User(Integer.parseInt(empIDField.getText()), firstNameField.getText(), lastNameField.getText(), positionField.getText(), usernameField.getText(), defaultPassword );
                         String userString = user.toString();
                         users.add(user);
-
                         try {
                             userList.saveUsersFile(user);
                             System.out.println(users);
                             dispose();
+                            UserDialog userDialog = new UserDialog();
+                            userDialog.setVisible(true);
                         } catch (IOException e) {
                             e.printStackTrace();
                             System.out.println("save failed.");
@@ -977,8 +991,9 @@ public class MainFrame extends JFrame {
                 add(saveBtn, gc);
             }
         }
-    }
 
+
+    }
     class ChangePwdDialog extends JDialog {
 
         private UserList userList = new UserList();
@@ -1142,6 +1157,31 @@ public class MainFrame extends JFrame {
 
     class ReportingDialog extends JDialog{
 
+        private ReportingPanel reportingPanel;
+
+        public ReportingDialog(){
+            setTitle("Reporting Dialog");
+            setLayout(new BorderLayout());
+            setSize(new Dimension(500,500));
+            setLocationRelativeTo(null);
+            reportingPanel = new ReportingPanel();
+
+            add(reportingPanel, BorderLayout.CENTER);
+        }
+
+
+        class ReportingPanel extends JPanel{
+            JButton exportInvReport;
+            JButton exportSalesByShift;
+            JButton exportSalesByDay;
+
+            public ReportingPanel(){
+                exportInvReport = new JButton("Export Inventory Report");
+                exportSalesByShift = new JButton("Export Sales Report per shift");
+                exportSalesByDay = new JButton("Export Sales Report per Day");
+
+            }
+        }
     }
 
 }
