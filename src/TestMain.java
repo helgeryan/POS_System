@@ -29,8 +29,5 @@ public class TestMain {
 
 		p.getRegisters().get(0).printSales();
 		System.out.println("Done");
-
-
 	}
-
 }
