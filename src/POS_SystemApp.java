@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 public class POS_SystemApp {
 
@@ -10,21 +11,14 @@ public class POS_SystemApp {
 		Register register = new Register();
 		POS_System pos_system = new POS_System();
 /*
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				//Register register = new Register();
-				try {
-					new LoginFrame(pos_system);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
-				//new MainFrame(register);
-			}
-		});
+		ArrayList<Item> items = new ArrayList<>();
+		 String item = "Book";
+		 String[] itemRecord = Inventory.getItem(item);
+
+		System.out.println(itemRecord);
 
 
  */
-
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				//Register register = new Register();
@@ -37,8 +31,9 @@ public class POS_SystemApp {
 			}
 		});
 
-
 		//System.out.println(r.toString());
+
+
 
 	}
 

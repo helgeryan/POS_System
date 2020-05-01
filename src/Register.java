@@ -47,7 +47,7 @@ public class Register {
 		return false;
 	}
 
-	public void returnSetofItems( long saleId, Item... items ) {
+	public void returnSetofItems( long saleId, Item ... items ) {
 		for(Sale sale: sales) {
 			if( sale.getId() == saleId) {
 				for(Item item: items) {

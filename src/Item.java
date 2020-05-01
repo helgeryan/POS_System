@@ -1,17 +1,15 @@
 public class Item {
     int itemID;
     private String itemName;
-    private String itemDesc;
     private double price;
     private int threshold;
     private int countOnHand;
     private int countOnOrder;
     private String supplier;
 
-    public Item(int ItemID, String ItemName, String ItemDesc, int CountOnHand, int CountOnOrder, int Threshold, double Price, String Supplier){
+    public Item(String ItemName,int ItemID, double Price, int CountOnHand, int Threshold, String Supplier, int CountOnOrder){
         this.itemID = ItemID;
         this.itemName = ItemName;
-        this.itemDesc = ItemDesc;
         this.countOnHand = CountOnHand;
         this.countOnOrder = CountOnOrder;
         this.price = Price;
@@ -35,13 +33,6 @@ public class Item {
         this.itemName = itemName;
     }
 
-    public String getItemDesc() {
-        return itemDesc;
-    }
-
-    public void setItemDesc(String itemDesc) {
-        this.itemDesc = itemDesc;
-    }
 
     public int getCountOnHand() {
         return countOnHand;
@@ -92,7 +83,6 @@ public class Item {
         return "Item{" +
                 "itemID=" + itemID +
                 ", itemName='" + itemName + '\'' +
-                ", itemDesc='" + itemDesc + '\'' +
                 ", countOnHand=" + countOnHand +
                 ", countOnOrder=" + countOnOrder +
                 ", price= " + price +

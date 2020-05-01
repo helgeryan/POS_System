@@ -1,6 +1,5 @@
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,13 +9,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class MainFrame extends JFrame {
 
     POS_System pos_system;
     private MainPanel mainPanel;
     private SalesPanel salesPanel;
+    private RegisterInfoPanel registerInfoPanel;
+    private SalesTablePanel salesTablePanel;
     private Register register;
 
     public MainFrame(POS_System POS_System, Register Register) throws FileNotFoundException {
@@ -32,10 +32,13 @@ public class MainFrame extends JFrame {
 
         mainPanel = new MainPanel();
         salesPanel = new SalesPanel();
+        registerInfoPanel = new RegisterInfoPanel();
+        salesTablePanel = new SalesTablePanel();
 
-        add(mainPanel, BorderLayout.NORTH);
-        //add(inventoryDialog, BorderLayout.CENTER);
-        add(salesPanel, BorderLayout.CENTER);
+        add(mainPanel, BorderLayout.SOUTH);
+        add(registerInfoPanel, BorderLayout.NORTH);
+        add(salesTablePanel, BorderLayout.CENTER);
+        add(salesPanel, BorderLayout.EAST);
         //add(userPanel, BorderLayout.CENTER);
 
 
@@ -74,7 +77,12 @@ public class MainFrame extends JFrame {
 
             invBtn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
-                    InventoryDialog inventoryDialog = new InventoryDialog();
+                    InventoryDialog inventoryDialog = null;
+                    try {
+                        inventoryDialog = new InventoryDialog();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     inventoryDialog.setVisible(true);
                 }
             });
@@ -95,34 +103,24 @@ public class MainFrame extends JFrame {
 
             gc.gridx = 3;
             add(reportingbtn);
-
-            reportingbtn.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent actionEvent) {
-                    ReportingDialog reportingDialog = new ReportingDialog();
-                    reportingDialog.setVisible(true);
-                }
-            });
         }
     }
 
+    class SalesTablePanel extends JPanel{
+        private JTable table;
+        private TransactionTableModel tableModel;
 
-    class SalesPanel extends JPanel {
+        public SalesTablePanel(){
+            tableModel = new TransactionTableModel();
+            table = new JTable(tableModel);
 
-        LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
+            setLayout(new BorderLayout());
 
-        List<Sale> sales = new ArrayList<>();
-        long nextSalesID = 1;
+            add(new JScrollPane(table), BorderLayout.CENTER);
+        }
+    }
 
-        private JLabel registerIDLabel;
-        private JLabel transIDLabel;
-
-        private JLabel cashierLabel;
-
-        private JLabel dateLabel;
-
-        private JLabel timeLabel;
-
+    class SalesPanel extends JPanel{
         private JButton newTransactionBtn;
         private JButton returnTransactionBtn;
         private JButton removeItemBtn;
@@ -139,35 +137,7 @@ public class MainFrame extends JFrame {
         private JLabel amountDueLabel;
         private JTextField amountDueField;
 
-        private JTable transItemList;
-
-        Border blackline = BorderFactory.createLineBorder(Color.black);
-        String spaces = "           ";
-
-
         public SalesPanel(){
-
-            sales = register.getSales();
-
-            for(int i = 0; i < sales.size(); i++){
-                nextSalesID = sales.get(i).getId() + 1;
-            }
-
-            registerIDLabel = new JLabel("Register ID: "  ); //+ register.getId() +
-            registerIDLabel.setBorder(blackline);
-
-            transIDLabel = new JLabel(spaces + "Tran ID: " + nextSalesID + spaces);
-            transIDLabel.setBorder(blackline);
-
-            cashierLabel = new JLabel(spaces + "Cashier : "); //+ register.getCurrUser().getUsername() + spaces
-            cashierLabel.setBorder(blackline);
-
-            dateLabel = new JLabel(spaces + date + spaces);
-            dateLabel.setBorder(blackline);
-
-            timeLabel = new JLabel(spaces + "Time" + spaces);
-            timeLabel.setBorder(blackline);
-
             newTransactionBtn = new JButton("New Transaction");
             returnTransactionBtn = new JButton("Return Transaction");
 
@@ -191,6 +161,155 @@ public class MainFrame extends JFrame {
             amountDueLabel = new JLabel("Amount still due: ");
             amountDueField = new JTextField(5);
             amountDueField.setEditable(false);
+
+            setVisible(true);
+
+            setLayout();
+        }
+
+        void setLayout(){
+            setLayout(new GridBagLayout());
+            GridBagConstraints gc = new GridBagConstraints();
+
+            /////// Side Column //////
+
+            gc.weighty = .02;
+            gc.gridx = 1;
+            gc.gridy = 1;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(newTransactionBtn, gc);
+
+
+
+            gc.gridx = 1;
+            gc.gridy =2;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(returnTransactionBtn, gc);
+
+            gc.weighty = .1;
+            gc.gridx = 1;
+            gc.gridy = 3;
+            add(new JLabel(""), gc);
+
+            gc.weighty = .02;
+            gc.gridx = 1;
+            gc.gridy =4;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(addItemBtn, gc);
+
+            gc.weighty = .02;
+            gc.gridx = 1;
+            gc.gridy = 5;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(removeItemBtn, gc);
+
+            gc.weighty = .1;
+            gc.gridx = 1;
+            gc.gridy = 6;
+            add(new JLabel(""), gc);
+
+            gc.weighty = .02;
+            gc.gridx = 1;
+            gc.gridy = 7;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(processPaymentBtn, gc);
+
+            gc.gridx = 1;
+            gc.gridy = 8;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(endTransactionBtn, gc);
+
+            ///// Totals section /////
+
+            gc.weighty = .02;
+            gc.gridx = 1;
+            gc.gridwidth = 1;
+            gc.gridy = 9;
+            gc.anchor = GridBagConstraints.LINE_END;
+            add(subtotalLabel, gc);
+
+            gc.gridx = 1;
+            gc.gridy = 10;
+            gc.anchor = GridBagConstraints.LINE_END;
+            add(taxLabel, gc);
+
+            gc.gridx = 1;
+            gc.gridy = 11;
+            gc.anchor = GridBagConstraints.LINE_END;
+            add(totalLabel, gc);
+
+            gc.gridx = 1;
+            gc.gridy = 12;
+            gc.anchor = GridBagConstraints.LINE_END;
+            add(amountDueLabel, gc);
+
+            gc.weighty = .02;
+            gc.gridx = 2;
+            gc.gridy = 9;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(subtotalField, gc);
+
+            gc.gridx = 2;
+            gc.gridy = 10;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(taxField, gc);
+
+            gc.gridx = 2;
+            gc.gridy = 11;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(totalField, gc);
+
+            gc.gridx = 2;
+            gc.gridy = 12;
+            gc.anchor = GridBagConstraints.LINE_START;
+            add(amountDueField, gc);
+        }
+    }
+
+    class RegisterInfoPanel extends JPanel {
+
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
+
+        List<Sale> sales = new ArrayList<>();
+        long nextSalesID = 1;
+
+        private JLabel registerIDLabel;
+        private JLabel transIDLabel;
+
+        private JLabel cashierLabel;
+
+        private JLabel dateLabel;
+
+        private JLabel timeLabel;
+
+
+        Border blackline = BorderFactory.createLineBorder(Color.black);
+        String spaces = "           ";
+
+
+        public RegisterInfoPanel(){
+
+            sales = register.getSales();
+
+            for(int i = 0; i < sales.size(); i++){
+                nextSalesID = sales.get(i).getId() + 1;
+            }
+
+            registerIDLabel = new JLabel("Register ID: "  ); //+ register.getId() +
+            registerIDLabel.setBorder(blackline);
+
+            transIDLabel = new JLabel(spaces + "Tran ID: " + nextSalesID + spaces);
+            transIDLabel.setBorder(blackline);
+
+            cashierLabel = new JLabel(spaces + "Cashier : "); //+ register.getCurrUser().getUsername() + spaces
+            cashierLabel.setBorder(blackline);
+
+            dateLabel = new JLabel(spaces + date + spaces);
+            dateLabel.setBorder(blackline);
+
+            timeLabel = new JLabel(spaces + "Time" + spaces);
+            timeLabel.setBorder(blackline);
 
             setVisible(true);
 
@@ -227,98 +346,6 @@ public class MainFrame extends JFrame {
             gc.gridwidth = 2;
             gc.anchor = GridBagConstraints.CENTER;
             add(timeLabel, gc);
-
-            /////// Side Column //////
-            gc.weighty = .02;
-            gc.gridx = 6;
-            gc.gridy = 2;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(newTransactionBtn, gc);
-
-
-
-            gc.gridx = 6;
-            gc.gridy =3;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(returnTransactionBtn, gc);
-
-            gc.weighty = .3;
-            gc.gridx = 6;
-            gc.gridy = 4;
-            add(new JLabel(""), gc);
-
-            gc.weighty = .02;
-            gc.gridx = 6;
-            gc.gridy =5;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(addItemBtn, gc);
-
-            gc.weighty = .02;
-            gc.gridx = 6;
-            gc.gridy = 6;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(removeItemBtn, gc);
-
-            gc.weighty = .3;
-            gc.gridx = 6;
-            gc.gridy = 7;
-            add(new JLabel(""), gc);
-
-            gc.weighty = .02;
-            gc.gridx = 6;
-            gc.gridy = 8;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(processPaymentBtn, gc);
-
-            gc.gridx = 6;
-            gc.gridy = 9;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(endTransactionBtn, gc);
-
-            ///// Totals section /////
-
-            gc.weighty = .02;
-            gc.gridx = 4;
-            gc.gridwidth = 1;
-            gc.gridy = 10;
-            gc.anchor = GridBagConstraints.LINE_END;
-            add(subtotalLabel, gc);
-
-            gc.gridx = 4;
-            gc.gridy = 11;
-            gc.anchor = GridBagConstraints.LINE_END;
-            add(taxLabel, gc);
-
-            gc.gridx = 4;
-            gc.gridy = 12;
-            gc.anchor = GridBagConstraints.LINE_END;
-            add(totalLabel, gc);
-
-            gc.gridx = 4;
-            gc.gridy = 13;
-            gc.anchor = GridBagConstraints.LINE_END;
-            add(amountDueLabel, gc);
-
-            gc.weighty = .02;
-            gc.gridx = 5;
-            gc.gridy = 10;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(subtotalField, gc);
-
-            gc.gridx = 5;
-            gc.gridy = 11;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(taxField, gc);
-
-            gc.gridx = 5;
-            gc.gridy = 12;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(totalField, gc);
-
-            gc.gridx = 5;
-            gc.gridy = 13;
-            gc.anchor = GridBagConstraints.LINE_START;
-            add(amountDueField, gc);
         }
     }
 
@@ -326,8 +353,9 @@ public class MainFrame extends JFrame {
 
         private InventoryTablePanel inventoryTablePanel;
         private AdjInvPanel adjInvPanel;
+        InventoryTableModel tableModel;
 
-        public InventoryDialog(){
+        public InventoryDialog() throws FileNotFoundException {
             setTitle("Inventory Maintenance");
             inventoryTablePanel = new InventoryTablePanel();
             adjInvPanel = new AdjInvPanel();
@@ -339,64 +367,26 @@ public class MainFrame extends JFrame {
             add(adjInvPanel, BorderLayout.EAST);
         }
 
-        class InventoryTablePanel extends JPanel {
-            private Inventory inventory = new Inventory();
+        class InventoryTablePanel extends  JPanel{
 
-            public ArrayList getInv() {
-
-                ArrayList<Object> items = new ArrayList<>();
-                //try {
-                //    items = inventory.getInventoryList();
-                // } catch (FileNotFoundException e) {
-                //     e.printStackTrace();
-                // }
-
-                return items;
+            private JTable table;
 
 
+            public InventoryTablePanel() throws FileNotFoundException {
+                tableModel = new InventoryTableModel();
+                table = new JTable(tableModel);
+
+                setLayout(new BorderLayout());
+
+                add(new JScrollPane(table), BorderLayout.CENTER);
             }
 
-            public Object[][] addRowsToModel(){
-
-
-
-                //Object[][] data = new Object[inv.size()][8];
-/*
-                for(int row = 0; row< inv.size(); row++){
-                    int col = 0;
-                    data[row][++col] = inv.get(row).getItemName();
-                    data[row][++col] = inv.get(row).getPrice();
-                    data[row][++col] = inv.get(row).getCountOnHand();
-                    data[row][++col] = inv.get(row).getThreshold();
-                    data[row][++col] = inv.get(row).getSupplier();
-                    data[row][++col] = inv.get(row).getCountOnOrder();
-
-                }
-
- */
-                return data;
-            }
-
-            String[] columnNames = {"ItemId", "Item Name", "Item Desc", "Count on Hand", "Threshold", "Count on Order", "Price", "Supplier"};
-            Object[][] data = addRowsToModel();
-
-
-            private JTable table = new JTable(data, columnNames);
-
-            JScrollPane scrollPane = new JScrollPane(table);
-
-            public InventoryTablePanel(){
-                Dimension dim = getPreferredSize();
-                dim.width = 600;
-                dim.height = 500;
-                setPreferredSize(dim);
-                add(scrollPane);
-            }
         }
 
         class AdjInvPanel extends JPanel {
             private JButton addNewItemBtn;
             private JButton deleteItemBtn;
+            private JButton updateQuantityBtn;
 
             public AdjInvPanel(){
                 Dimension dim = getPreferredSize();
@@ -410,6 +400,7 @@ public class MainFrame extends JFrame {
                     public void actionPerformed(ActionEvent actionEvent) {
                         try {
                             NewItemDialog newItemDialog = new NewItemDialog();
+                            dispose();
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -446,8 +437,7 @@ public class MainFrame extends JFrame {
     }
 
     class NewItemDialog extends JDialog{
-        private Inventory inventory = new Inventory();
-        //private ArrayList<Item> items = new ArrayList<>();
+
 
         private NewItemPanel newItemPanel = new NewItemPanel();
 
@@ -463,15 +453,10 @@ public class MainFrame extends JFrame {
         }
 
         private int getNextID() throws FileNotFoundException {
-            int nextID = 0;
-            Inventory inventory = new Inventory();
-            //ArrayList<Item> items = new ArrayList<>();
+            InventoryTableModel tableModel = new InventoryTableModel();
+            int lastRow = tableModel.getRowCount() - 1;
 
-            //items = inventory.getInventoryList();
-            //for(int i = 0; i <items.size(); i++){
-            //    nextID = items.get(i).getItemID() + 1;
-            //}
-            return nextID;
+            return ((int) tableModel.getValueAt(lastRow, 1)) + 1;
         }
 
         private class NewItemPanel extends JPanel {
@@ -535,6 +520,22 @@ public class MainFrame extends JFrame {
 
                 saveBtn = new JButton("Save Item");
 
+                saveBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        String str = "\n" + itemNameField.getText() + "," + itemIDField.getText() + "," + priceField.getText() + ","
+                                + countOnHandField.getText() + "," + thresholdField.getText() + "," + supplierField.getText()
+                                + "," + countonOrderField.getText();
+                        Inventory.appendStrToFile(str);
+                        dispose();
+                        try {
+                            InventoryDialog inventoryDialog = new InventoryDialog();
+                            inventoryDialog.setVisible(true);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
                 layoutNewItemComponents();
             }
 
@@ -556,13 +557,13 @@ public class MainFrame extends JFrame {
                 gc.fill = GridBagConstraints.NONE;
                 gc.anchor = GridBagConstraints.FIRST_LINE_END;
                 gc.insets = new Insets(0,0,0,5);
-                add(itemIDLabel, gc);
+                add(itemNameLabel, gc);
 
                 gc.gridx = 1;
                 gc.insets = new Insets(0,0,0,0);
                 gc.anchor = GridBagConstraints.FIRST_LINE_START;
                 itemIDField.setText(String.valueOf(nextID));
-                add(itemIDField, gc);
+                add(itemNameField, gc);
 
                 /////// Second Row //////////
 
@@ -570,27 +571,15 @@ public class MainFrame extends JFrame {
                 gc.gridx = 0;
                 gc.anchor = GridBagConstraints.FIRST_LINE_END;
                 gc.insets = new Insets(0,0,0,5);
-                add(itemNameLabel, gc);
+                add(itemIDLabel, gc);
 
                 gc.gridx = 1;
                 gc.insets = new Insets(0,0,0,0);
                 gc.anchor = GridBagConstraints.FIRST_LINE_START;
-                add(itemNameField, gc);
+                add(itemIDField, gc);
+
 
                 /////// Third Row //////////
-
-                gc.gridy ++;
-                gc.gridx = 0;
-                gc.anchor = GridBagConstraints.FIRST_LINE_END;
-                gc.insets = new Insets(0,0,0,5);
-                add(descLabel, gc);
-
-                gc.gridx = 1;
-                gc.insets = new Insets(0,0,0,0);
-                gc.anchor = GridBagConstraints.FIRST_LINE_START;
-                add(descField, gc);
-
-                /////// Forth Row //////////
 
                 gc.gridy ++;
                 gc.gridx = 0;
@@ -603,7 +592,7 @@ public class MainFrame extends JFrame {
                 gc.anchor = GridBagConstraints.FIRST_LINE_START;
                 add(countOnHandField, gc);
 
-                /////// Fifth Row //////////
+                /////// Forth Row //////////
 
                 gc.gridy ++;
                 gc.gridx = 0;
@@ -616,7 +605,7 @@ public class MainFrame extends JFrame {
                 gc.anchor = GridBagConstraints.FIRST_LINE_START;
                 add(thresholdField, gc);
 
-                /////// Sixth Row //////////
+                /////// Fifth Row //////////
 
                 gc.gridy ++;
                 gc.gridx = 0;
@@ -629,7 +618,7 @@ public class MainFrame extends JFrame {
                 gc.anchor = GridBagConstraints.FIRST_LINE_START;
                 add(countonOrderField, gc);
 
-                /////// Seventh Row //////////
+                /////// Sixth Row //////////
 
                 gc.gridy ++;
                 gc.gridx = 0;
@@ -642,7 +631,7 @@ public class MainFrame extends JFrame {
                 gc.anchor = GridBagConstraints.FIRST_LINE_START;
                 add(priceField, gc);
 
-                /////// Eighth Row //////////
+                /////// Seventh Row //////////
 
                 gc.gridy ++;
                 gc.gridx = 0;
@@ -655,7 +644,7 @@ public class MainFrame extends JFrame {
                 gc.anchor = GridBagConstraints.FIRST_LINE_START;
                 add(supplierField, gc);
 
-                //// Ninth Row //////
+                //// Eighth Row //////
                 gc.gridy ++;
                 gc.gridx = 0;
                 gc.anchor = GridBagConstraints.CENTER;
@@ -1157,31 +1146,6 @@ public class MainFrame extends JFrame {
 
     class ReportingDialog extends JDialog{
 
-        private ReportingPanel reportingPanel;
-
-        public ReportingDialog(){
-            setTitle("Reporting Dialog");
-            setLayout(new BorderLayout());
-            setSize(new Dimension(500,500));
-            setLocationRelativeTo(null);
-            reportingPanel = new ReportingPanel();
-
-            add(reportingPanel, BorderLayout.CENTER);
-        }
-
-
-        class ReportingPanel extends JPanel{
-            JButton exportInvReport;
-            JButton exportSalesByShift;
-            JButton exportSalesByDay;
-
-            public ReportingPanel(){
-                exportInvReport = new JButton("Export Inventory Report");
-                exportSalesByShift = new JButton("Export Sales Report per shift");
-                exportSalesByDay = new JButton("Export Sales Report per Day");
-
-            }
-        }
     }
 
 }
