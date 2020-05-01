@@ -10,15 +10,7 @@ public class POS_SystemApp {
 
 		Register register = new Register();
 		POS_System pos_system = new POS_System();
-/*
-		ArrayList<Item> items = new ArrayList<>();
-		 String item = "Book";
-		 String[] itemRecord = Inventory.getItem(item);
 
-		System.out.println(itemRecord);
-
-
- */
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				//Register register = new Register();
