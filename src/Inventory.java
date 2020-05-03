@@ -131,43 +131,43 @@ public class Inventory {
 	@SuppressWarnings("resource")
 	public static String[] getAllItems() {// 
 		String fileName = "src/inventory.txt";
-	ArrayList<String> records = new ArrayList<String>(); //will be able to change size
-	
-	String name = "";
-	String ID = "";
-	String price = "";
-	String inventory = "";
-	String threshold = "";
-	String supplier = "";
-	String onOrder = "";
-	
-	try{
-		Scanner x;
-		x = new Scanner(new File(fileName));
-		x.useDelimiter("[,\n]");
-		
-		while(x.hasNext()){
-			name = x.next();
-			ID = x.next();
-			price = x.next();
-			inventory = x.next();
-			threshold = x.next();
-			supplier = x.next();
-			onOrder = x.next();
-			records.add(name);
-			
+		ArrayList<String> records = new ArrayList<String>(); //will be able to change size
+
+		String name = "";
+		String ID = "";
+		String price = "";
+		String inventory = "";
+		String threshold = "";
+		String supplier = "";
+		String onOrder = "";
+
+		try{
+			Scanner x;
+			x = new Scanner(new File(fileName));
+			x.useDelimiter("[,\n]");
+
+			while(x.hasNext()){
+				name = x.next();
+				ID = x.next();
+				price = x.next();
+				inventory = x.next();
+				threshold = x.next();
+				supplier = x.next();
+				onOrder = x.next();
+				records.add(name);
+
+			}
+
+
 		}
-		
-		
+		catch(Exception e) {
+			//System.out.println("ERROR");
+		}
+		records.remove(0);
+		String[] recordsArray = new String[records.size()];
+		records.toArray(recordsArray);
+		return recordsArray;
 	}
-	catch(Exception e) {
-		//System.out.println("ERROR");
-	}
-	records.remove(0);
-	String[] recordsArray = new String[records.size()];
-	records.toArray(recordsArray);
-	return recordsArray;
-}
 	
 	
 	//gets price 

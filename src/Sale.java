@@ -54,9 +54,9 @@ public class Sale {
 		this.date = new Date();
 	}
 
-	public void removeItem(Item item) {
+	public void removeItem(long id) {
 		for(int i = 0; i < items.size(); ++i ) {
-			if(item.getItemID() == items.get(i).getItemID()) {
+			if(id == items.get(i).getItemID()) {
 				salePrice -= items.get(i).getPrice();
 				items.remove(i);
 				break;

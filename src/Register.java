@@ -14,6 +14,7 @@ public class Register {
 
 	public void newSale() {
 		currSale = new Sale();
+		currSale.setCashier(currUser);
 		currSale.setId(++saleId);
 	}
 
@@ -46,11 +47,11 @@ public class Register {
 		return false;
 	}
 
-	public void returnSetofItems( long saleId, Item ... items ) {
+	public void returnSetofItems( long saleId, long ... ids ) {
 		for(Sale sale: sales) {
 			if( sale.getId() == saleId) {
-				for(Item item: items) {
-					sale.removeItem(item);
+				for(long id: ids) {
+					sale.removeItem(id);
 				}
 			}
 		}
@@ -93,7 +94,6 @@ public class Register {
 		this.sales = sales;
 	}
 
-
 	public Sale getCurrSale() {
 		return currSale;
 	}
@@ -122,6 +122,15 @@ public class Register {
 
 	public List<Sale> getSales() {
 		return sales;
+	}
+	
+	public Sale getSale(long id) {
+		for (Sale sale: sales) {
+			if(sale.getId() == id) {
+				return sale;
+			}
+		}
+		return null;
 	}
 
 	@Override
