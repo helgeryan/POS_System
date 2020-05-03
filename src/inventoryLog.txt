@@ -1,1 +1,10 @@
-
+item,ID,price,inventory,threshold,supplier,onOrder
+Clorox,1001,5.00,150,50,JnJ,10
+Milk,1002,2.75,50,25,Lakes,25
+Beer,1003,9.00,50,30,AHB,45
+Apples,1004,1.25,100,50,FruitCo,100
+Bananas,1005,.75,200,150,FruitCo,100
+Cake,1006,6.00,15,8,CakeCo,25
+Water,1007,.99,35,25,Watermans,45
+Paper,1008,5.00,25,20,DunderMifflin,25
+Wine,1009,12.00,50,25,Trader,25
