@@ -38,7 +38,7 @@ public class Register {
 	}
 
 	public boolean returnEntireSale(long saleId) {
-		for(Sale sale: sales) {
+		for(Sale sale: sales) { 
 			if( sale.getId() == saleId) {
 				sales.remove(sale);
 				return true;
