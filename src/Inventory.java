@@ -228,7 +228,7 @@ public class Inventory {
 	
 	//sets price
 	public static void setPrice(String editItem, double newPriceD) {
-		String fileName = "C:\\Users\\Brent\\Desktop\\inventory.txt";
+		String fileName = "src/inventory.txt";
 		String tempFile = "temp.txt";
 		String newPrice = String.valueOf(newPriceD);
 		File oldFile = new File(fileName);
@@ -436,7 +436,7 @@ public class Inventory {
 	
 	//sets inventory count
 	public static void setInventory(String editItem, int newInventoryI) {
-		String fileName = "C:\\Users\\Brent\\Desktop\\inventory.txt";
+		String fileName = "src/inventory.txt";
 		String tempFile = "temp.txt";
 		String newInventory = Integer.toString(newInventoryI);
 		File oldFile = new File(fileName);
@@ -858,7 +858,7 @@ public class Inventory {
 		
 }
 	
-	
+	//Dont use
 	//toString
 	@Override
 	public String toString() {
