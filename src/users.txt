@@ -1,2 +1,4 @@
-1,Joe,Smith,cashier,user1,password1
-2,John,Adams,manager,user2,password1
+1,Joe,Smith,cashier,user1,password1,active
+2,John,Adams,manager,user2,password3,active
+3,Jacob,Astar,Cashier,jastar,password1,active
+4,kevin,malone,cashier,kmalone,password1,active

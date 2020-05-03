@@ -8,3 +8,5 @@ Cake,1006,6.00,15,8,CakeCo,25
 Water,1007,.99,35,25,Watermans,45
 Paper,1008,5.00,25,20,DunderMifflin,25
 Wine,1009,12.00,50,25,Trader,25
+Crackers,1010,2.99,50,15,Ritz,10
+FishBait,1011,5.99,25,5,FishRUs,0

@@ -21,7 +21,7 @@ public class Sale {
 		items = new ArrayList<Item>();
 		salePrice = 0.0;
 	}
-	
+
 	public List<Item> getItems() {
 		return items;
 	}
@@ -32,10 +32,18 @@ public class Sale {
 
 	public double getSalePrice() {
 		return salePrice;
+
 	}
 
 	public void setSalePrice(double salePrice) {
 		this.salePrice = salePrice;
+	}
+
+	public void addItem(Item item, int quantity) {
+		for (int i = 0; i < quantity; ++i) {
+			salePrice += item.getPrice();
+			items.add(item);
+		}
 	}
 
 	public Date getDate() {
@@ -46,13 +54,6 @@ public class Sale {
 		this.date = new Date();
 	}
 
-	public void addItem(Item item, int quantity) {
-		for (int i = 0; i < quantity; ++i) {
-			salePrice += item.getPrice();
-			items.add(item);
-		}
-	}
-	
 	public void removeItem(Item item) {
 		for(int i = 0; i < items.size(); ++i ) {
 			if(item.getItemID() == items.get(i).getItemID()) {
@@ -62,13 +63,13 @@ public class Sale {
 			}
 		}
 	}
-	
+
 	public void printSale() {
 		for( int i = 0; i < items.size(); ++i) {
 			System.out.println( items.get(i).saleToString());
 		}
 	}
-	
+
 	public long getId() {
 		return id;
 	}
@@ -86,10 +87,11 @@ public class Sale {
 		String retString = "Sale at Date/Time " + date + "\n";
 		retString += "Sale ID: " + id + "\n";
 		retString += "Cashier: " + cashier.getFullName() + "\n";
+
 		for (Item item: items) {
-			retString += item.getName() + " $" + item.getPrice() + "\n";
+			retString += item.getItemName() + " $" + item.getPrice() + "\n";
 		}
 		retString += "Total price: $" + (int)(this.getSalePrice()*100)/100.0;
 		return retString ;
-	}
+	}	
 }

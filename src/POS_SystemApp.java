@@ -1,20 +1,31 @@
 import javax.swing.*;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 public class POS_SystemApp {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		// TODO Auto-generated method stub
-		System.out.println("Hello!");
 		//User u = new User();
-		Register r = new Register();
+
+		Register register = new Register();
+		POS_System pos_system = new POS_System();
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				new LoginFrame();
+				//Register register = new Register();
+				try {
+					new MainFrame(pos_system, register);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+				//new MainFrame(register);
 			}
 		});
-		
-		System.out.println(r.toString());
+
+		//System.out.println(r.toString());
+
+
 
 	}
 

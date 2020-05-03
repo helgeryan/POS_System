@@ -22,10 +22,10 @@ public class POS_System {
 	public void setRegisters(List<Register> registers) {
 		this.registers = registers;
 	}
-	public List<Register> getUsers() {
+	public List<User> getUsers() {
 		return users;
 	}
-	public void setUsers(List<Register> users) {
+	public void setUsers(List<User> users) {
 		this.users = users;
 	}
 	public String getCompanyName() {

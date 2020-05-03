@@ -5,14 +5,26 @@ public class User {
     String position;
     String username;
     String password;
+    String status;
 
-    User(int EmpID, String FirstName, String LastName, String Position, String Username, String Password) {
+    User(int EmpID, String FirstName, String LastName, String Position, String Username, String Password, String Status) {
         this.empID = EmpID;
         this.firstName = FirstName;
         this.lastName = LastName;
         this.position = Position;
         this.username = Username;
         this.password = Password;
+        this.status = Status;
+    }
+
+    User(int EmpID, String FirstName, String LastName, String Position, String Username, String Status) {
+        this.empID = EmpID;
+        this.firstName = FirstName;
+        this.lastName = LastName;
+        this.position = Position;
+        this.username = Username;
+
+        this.status = Status;
     }
 
     public String getUsername() {
@@ -31,7 +43,7 @@ public class User {
         this.empID = empID;
     }
 
-    public String getfirstName() {
+    public String getFirstName() {
         return firstName;
     }
 
@@ -67,8 +79,16 @@ public class User {
     	return firstName + " " + lastName;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
-        return empID + ","+ firstName + "," + lastName + "," +  position + "," +  username  + "," +  password;
+        return empID + ","+ firstName + "," + lastName + "," +  position + "," +  username  + "," +  password + "," + status;
     }
 }

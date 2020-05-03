@@ -3,7 +3,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Register {
-	private int id;	
+	private int id;
 	private List<User> users;
 	private double salePrice;
 	private Date date;
@@ -11,24 +11,31 @@ public class Register {
 	private User currUser;
 	private Sale currSale;
 	private long saleId = 0;
-	
+
 	public void newSale() {
 		currSale = new Sale();
 		currSale.setId(++saleId);
 	}
-	
-	public boolean addItemToSale( Item item, int quantity) {
+
+	public User getCurrUser() {
+		return currUser;
+	}
+
+	public void setCurrUser(User currUser) {
+		this.currUser = currUser;
+	}
+
+	public boolean addItemToSale(Item item, int quantity) {
 		currSale.addItem(item, quantity);
 		return true;
 	}
-	
+
 	public void closeSale() {
 		currSale.setDate();
 		currSale.setId(saleId);
-		currSale.setCashier(currUser);
 		sales.add(currSale);
 	}
-	
+
 	public boolean returnEntireSale(long saleId) {
 		for(Sale sale: sales) {
 			if( sale.getId() == saleId) {
@@ -38,7 +45,7 @@ public class Register {
 		}
 		return false;
 	}
-	
+
 	public void returnSetofItems( long saleId, Item ... items ) {
 		for(Sale sale: sales) {
 			if( sale.getId() == saleId) {
@@ -48,13 +55,13 @@ public class Register {
 			}
 		}
 	}
-	
+
 	public Register() {
 		id = 0;
 		users = new ArrayList<User>();
 		salePrice = 0;
 		date = new Date();
-		sales = new ArrayList<Sale>();
+		sales = new ArrayList<>();
 	}
 	public int getId() {
 		return id;
@@ -69,10 +76,11 @@ public class Register {
 		this.users = users;
 	}
 	public double getSalePrice() {
-		return salePrice;
+		return currSale.getSalePrice();
 	}
 	public void setSalePrice(double salePrice) {
 		this.salePrice = salePrice;
+		currSale.setSalePrice(salePrice);
 	}
 	public Date getDate() {
 		return date;
@@ -80,22 +88,11 @@ public class Register {
 	public void setDate(Date date) {
 		this.date = date;
 	}
-	
-	public List<Sale> getSales() {
-		return sales;
-	}
 
 	public void setSales(List<Sale> sales) {
 		this.sales = sales;
 	}
 
-	public User getCurrUser() {
-		return currUser;
-	}
-
-	public void setCurrUser(User currUser) {
-		this.currUser = currUser;
-	}
 
 	public Sale getCurrSale() {
 		return currSale;
@@ -122,7 +119,11 @@ public class Register {
 			System.out.println(sale + "\n");
 		}
 	}
-	
+
+	public List<Sale> getSales() {
+		return sales;
+	}
+
 	@Override
 	public String toString() {
 		return "Register [id=" + id + ", cashiers=" + users + ", salePrice=" + salePrice + ", date=" + date
