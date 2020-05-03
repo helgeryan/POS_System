@@ -20,6 +20,7 @@ public class Inventory {
 	private int inventory; // Number of units in stock
 	private int threshold; 
 	private String supplier;
+	private static LocalDate Date_of;
 	//file = "src/inventory.txt"; 
 	//file = "src/temp.txt" ...need to create
 	
@@ -819,6 +820,43 @@ public class Inventory {
 		return table;
 	}
 	
+	//appends inventory log to the end of the file with data of transaction 
+	public static void inventoryLog() { 
+		String fileNameLog = "src/inventoryLog.txt";
+		String fileName = "src/inventory.txt";
+		String item = ""; String price = ""; String inventory = ""; String threshold = "";
+		String supplier = ""; String onOrder = ""; String ID = "";
+		
+		try {
+			BufferedWriter out = new BufferedWriter( new FileWriter(fileNameLog, true)); 
+			x = new Scanner(new File(fileName));
+			x.useDelimiter("[,\n]");
+			out.write("\n");
+			Date_of = LocalDate.now();
+			String newDate = String.valueOf(Date_of);
+			out.write(newDate);
+			out.write("\n");
+			 
+		while(x.hasNext()){
+			item = x.next();
+			ID = x.next();
+			price = x.next();
+			inventory = x.next();
+			threshold = x.next();
+			supplier = x.next();
+			onOrder = x.next();
+			String str = item + "," + ID + "," + price + "," + inventory + "," + threshold + "," + supplier + "," + onOrder + "\n";
+			out.write(str); 
+			}
+			out.close(); 
+			x.close();
+		}
+		catch( Exception e) {
+			System.out.println("Error");
+			x.close();
+		}
+		
+}
 	
 	
 	//toString
