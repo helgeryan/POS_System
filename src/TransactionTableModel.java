@@ -20,6 +20,11 @@ public class TransactionTableModel extends AbstractTableModel {
         this.itemsInSale = ItemsInSale;
     }
 
+    public void addItemToSaleTable(Item item, int qty){
+        itemsInSale.add(new ItemInSale(item.getItemID(), item.getItemName(), qty, item.getPrice()));
+
+    }
+
     @Override
     public int getRowCount() {
         return itemsInSale.size();

@@ -77,10 +77,11 @@ public class Register {
 		this.users = users;
 	}
 	public double getSalePrice() {
-		return salePrice;
+		return currSale.getSalePrice();
 	}
 	public void setSalePrice(double salePrice) {
 		this.salePrice = salePrice;
+		currSale.setSalePrice(salePrice);
 	}
 	public Date getDate() {
 		return date;

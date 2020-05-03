@@ -2,9 +2,9 @@ public class ItemInSale {
     private String itemName;
     private int itemID;
     private int qtyBought;
-    private int price;
+    private double price;
 
-    public ItemInSale(String ItemName, int ItemID, int QtyBought, int Price){
+    public ItemInSale(int ItemID, String ItemName, int QtyBought, double Price){
         this.itemName = ItemName;
         this.itemID = ItemID;
         this.qtyBought = QtyBought;
@@ -23,7 +23,7 @@ public class ItemInSale {
         return qtyBought;
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 }

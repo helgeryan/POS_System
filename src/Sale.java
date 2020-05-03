@@ -28,6 +28,7 @@ public class Sale {
 
 	public void setSalePrice(double salePrice) {
 		this.salePrice = salePrice;
+		System.out.println(salePrice);
 	}
 
 	public Date getDate() {

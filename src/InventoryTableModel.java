@@ -10,24 +10,26 @@ public class InventoryTableModel extends AbstractTableModel {
     private List<Item> items = new ArrayList<>();
 
     private String[] colNames = {"Item Name", "Item ID", "Price", "Count on hand", "Threshold", "Supplier", "On Order"};
-    String[] tableData;
+    // String[] tableData;
 
     public InventoryTableModel() throws FileNotFoundException {
-        tableData = Inventory.getTableData();
+        //tableData = Inventory.getTableData();
 
         setData();
     }
 
     public void setData() throws FileNotFoundException {
-        Scanner row = new Scanner(new File("src/inventory.txt"));
-        String rowParse = row.nextLine();
-        for(int i = 0; i < tableData.length; i++){
-            rowParse = row.nextLine();
-            Scanner sc = new Scanner(String.valueOf(rowParse));
-            sc.useDelimiter(",");
+        items.clear();
 
-            Item itemToAdd = new Item(sc.next(), Integer.parseInt(sc.next()), Double.parseDouble(sc.next()), Integer.parseInt(sc.next()), Integer.parseInt(sc.next()), sc.next(), Integer.parseInt(sc.next()));
-            items.add(itemToAdd);
+        String[] itemsArray = Inventory.getTableData();
+
+        for (int i = 0; i < itemsArray.length; i++){
+            String row = itemsArray[i];
+            row = row.replaceAll("\\r|\\n", "");
+            Scanner rowParser = new Scanner(row);
+            rowParser.useDelimiter(",");
+            items.add(new Item(rowParser.next(), Integer.parseInt(rowParser.next()),Double.valueOf(rowParser.next()),Integer.parseInt(rowParser.next()), Integer.parseInt(rowParser.next()),rowParser.next(),Integer.parseInt(rowParser.next())));
+
         }
     }
 
