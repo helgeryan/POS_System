@@ -24,9 +24,6 @@ public class POS_SystemApp {
 		});
 
 		//System.out.println(r.toString());
-
-
-
 	}
 
 }
