@@ -9,8 +9,16 @@ public class Sale {
 	private long id = 1;
 	private User cashier;
 
+	public User getCashier() {
+		return cashier;
+	}
+
+	public void setCashier(User cashier) {
+		this.cashier = cashier;
+	}
+
 	public Sale() {
-		items = new ArrayList<Item>();
+		items = new ArrayList<>();
 		salePrice = 0.0;
 	}
 
@@ -24,11 +32,18 @@ public class Sale {
 
 	public double getSalePrice() {
 		return salePrice;
+
 	}
 
 	public void setSalePrice(double salePrice) {
 		this.salePrice = salePrice;
-		System.out.println(salePrice);
+	}
+
+	public void addItem(Item item, int quantity) {
+		for (int i = 0; i < quantity; ++i) {
+			salePrice += item.getPrice();
+			items.add(item);
+		}
 	}
 
 	public Date getDate() {
@@ -39,16 +54,9 @@ public class Sale {
 		this.date = new Date();
 	}
 
-	public void addItem(Item item, int quantity) {
-		for (int i = 0; i < quantity; ++i) {
-			salePrice += item.getPrice();
-			items.add(item);
-		}
-	}
-
-	public void removeItem(Item item) {
+	public void removeItem(long id) {
 		for(int i = 0; i < items.size(); ++i ) {
-			if(item.getItemID() == items.get(i).getItemID()) {
+			if(id == items.get(i).getItemID()) {
 				salePrice -= items.get(i).getPrice();
 				items.remove(i);
 				break;
@@ -58,7 +66,7 @@ public class Sale {
 
 	public void printSale() {
 		for( int i = 0; i < items.size(); ++i) {
-			System.out.println( items.get(i).saleToString());
+			//System.out.println( items.get(i).saleToString());
 		}
 	}
 
@@ -78,6 +86,8 @@ public class Sale {
 	public String toString() {
 		String retString = "Sale at Date/Time " + date + "\n";
 		retString += "Sale ID: " + id + "\n";
+		retString += "Cashier: " + cashier.getUsername() + "\n";
+
 		for (Item item: items) {
 			retString += item.getItemName() + " $" + item.getPrice() + "\n";
 		}

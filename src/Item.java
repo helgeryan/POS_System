@@ -88,4 +88,7 @@ public class Item {
                 ", price= " + price +
                 '}';
     }
+    public String toStringForSaving(){
+        return "\n"+ itemName + ","+itemID+","+price+","+countOnHand+","+threshold+","+supplier+","+countOnOrder;
+    }
 }

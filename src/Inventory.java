@@ -227,7 +227,7 @@ public class Inventory {
 
     //sets price
     public static void setPrice(String editItem, double newPriceD) {
-        String fileName = "C:\\Users\\Brent\\Desktop\\inventory.txt";
+        String fileName = "src/inventory.txt";
         String tempFile = "temp.txt";
         String newPrice = String.valueOf(newPriceD);
         File oldFile = new File(fileName);
@@ -435,7 +435,7 @@ public class Inventory {
 
     //sets inventory count
     public static void setInventory(String editItem, int newInventoryI) {
-        String fileName = "C:\\Users\\Brent\\Desktop\\inventory.txt";
+        String fileName = "src/inventory.txt";
         String tempFile = "temp.txt";
         String newInventory = Integer.toString(newInventoryI);
         File oldFile = new File(fileName);
@@ -819,6 +819,36 @@ public class Inventory {
         return table;
     }
 
+
+    public static void updateItemCountInFile(String itemName, int newCount) throws IOException {
+        String[] itemsArray = Inventory.getTableData();
+        ArrayList<Item> items = new ArrayList<>();
+
+        //After itemArray is created using getTableData(). existing file is deleted and recreated.
+        //Column headers are added to the file.
+        File currentFile = new File("src/inventory.txt");
+        currentFile.delete();
+        File newFile = new File("src/inventory.txt");
+        newFile.createNewFile();
+        FileWriter fw = new FileWriter(newFile);
+        fw.write("item,ID,price,inventory,threshold,supplier,onOrder/n");
+        fw.close();
+
+        //Iterates through the existing itemsArray and parses each string into a Item object, if item name matches the itemName passed in, then the
+        //count is updated.
+        //at the end of each iteration, that item is appended to inventory.txt using appendStrToFile()
+        for (int i = 0; i < itemsArray.length; i++){
+            String row = itemsArray[i];
+            row = row.replaceAll("\\r|\\n", "");
+            Scanner rowParser = new Scanner(row);
+            rowParser.useDelimiter(",");
+            items.add(new Item(rowParser.next(), Integer.parseInt(rowParser.next()),Double.valueOf(rowParser.next()),Integer.parseInt(rowParser.next()), Integer.parseInt(rowParser.next()),rowParser.next(),Integer.parseInt(rowParser.next())));
+            if(items.get(i).getItemName().equals(itemName)){
+                items.get(i).setCountOnHand(newCount);
+            }
+            appendStrToFile(items.get(i).toStringForSaving());
+        }
+    }
 
 
     //toString

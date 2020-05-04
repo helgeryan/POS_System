@@ -4,8 +4,8 @@ import java.util.List;
 
 public class TransactionTableModel extends AbstractTableModel {
 
-    String[] colName = {"Item ID", "Item Name", "QTY", "Price"};
-    List<ItemInSale> itemsInSale;
+    String[] colName = {"Item ID", "Item Name", "Price"};
+    List<Item> itemsInSale;
 
     public TransactionTableModel(){
         itemsInSale = new ArrayList<>();
@@ -16,14 +16,20 @@ public class TransactionTableModel extends AbstractTableModel {
         return colName[column];
     }
 
-    public void setData(List<ItemInSale> ItemsInSale){
-        this.itemsInSale = ItemsInSale;
+    public void clearData(){
+        itemsInSale.clear();
     }
 
     public void addItemToSaleTable(Item item, int qty){
-        itemsInSale.add(new ItemInSale(item.getItemID(), item.getItemName(), qty, item.getPrice()));
-
+        for (int i = 0; i< qty; i++){
+            itemsInSale.add(item);
+        }
     }
+
+    public void populateFromSale(Sale currSale){
+        itemsInSale = currSale.getItems();
+    }
+
 
     @Override
     public int getRowCount() {
@@ -32,18 +38,17 @@ public class TransactionTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 3;
     }
 
     @Override
     public Object getValueAt(int row, int col) {
-        ItemInSale item = itemsInSale.get(row);
+        Item item = itemsInSale.get(row);
 
         switch (col){
             case 0: return item.getItemID();
             case 1: return item.getItemName();
-            case 2: return item.getQtyBought();
-            case 3: return item.getPrice();
+            case 2: return item.getPrice();
         }
 
 

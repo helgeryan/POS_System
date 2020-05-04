@@ -28,7 +28,7 @@ public class Authentication {
                 register.newSale();
                 register.closeSale();
 
-                new MainFrame(pos_system, register);
+                //new MainFrame(pos_system, register);
                 authStatus = true;
                 break;
             }

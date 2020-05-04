@@ -1,17 +1,13 @@
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Scanner;
 
 public class MainFrame extends JFrame {
 
@@ -21,8 +17,8 @@ public class MainFrame extends JFrame {
     private Register register;
     private SalesPanel salesPanel;
     private List<Item> items;
-
-    public MainFrame(POS_System POS_System, Register Register) throws FileNotFoundException {
+    private User currUser;
+    public MainFrame(POS_System POS_System, Register Register, User CurrUser) throws FileNotFoundException {
         super("Point of Sale System");
 
         pos_system = new POS_System();
@@ -30,6 +26,9 @@ public class MainFrame extends JFrame {
 
         register = new Register();
         register = Register;
+
+        currUser = CurrUser;
+        register.setCurrUser(currUser);
 
         salesPanel = new SalesPanel();
 
@@ -39,13 +38,9 @@ public class MainFrame extends JFrame {
 
         registerInfoPanel = new RegisterInfoPanel();
 
-
         add(mainPanel, BorderLayout.SOUTH);
         add(salesPanel, BorderLayout.CENTER);
         add(registerInfoPanel, BorderLayout.NORTH);
-
-        //add(userPanel, BorderLayout.CENTER);
-
 
         setSize(1000, 800);
         setLocationRelativeTo(null);
@@ -59,7 +54,7 @@ public class MainFrame extends JFrame {
         //LocalTime time = LocalTime.now();
 
         List<Sale> sales = new ArrayList<>();
-        long nextSalesID = 1;
+        long nextSalesID;
 
         private JLabel registerIDLabel;
         private JLabel transIDLabel;
@@ -79,14 +74,14 @@ public class MainFrame extends JFrame {
 
             sales = register.getSales();
 
-            for(int i = 0; i < sales.size(); i++){
-                nextSalesID = sales.get(i).getId() + 1;
+            for(int i = 0; i < sales.size(); ++i){
+                nextSalesID = i;
             }
 
             registerIDLabel = new JLabel("Register ID: "  ); //+ register.getId() +
             registerIDLabel.setBorder(blackline);
 
-            transIDLabel = new JLabel(spaces + "Tran ID: " + nextSalesID + spaces);
+            transIDLabel = new JLabel("Transaction ID: " + nextSalesID + "    ");
             transIDLabel.setBorder(blackline);
 
             cashierLabel = new JLabel(spaces + "Cashier : "); //+ register.getCurrUser().getUsername() + spaces
@@ -103,7 +98,7 @@ public class MainFrame extends JFrame {
             layoutSalesComponents();
         }
 
-        public void layoutSalesComponents(){
+        private void layoutSalesComponents(){
             setLayout(new GridBagLayout());
             GridBagConstraints gc = new GridBagConstraints();
 
@@ -237,7 +232,8 @@ public class MainFrame extends JFrame {
                 table.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         selectedRow = table.rowAtPoint(e.getPoint());
-                        System.out.println(selectedRow);
+                        int itemID = (int) tableModel.getValueAt(selectedRow, 0);
+                        System.out.println(itemID);
                     }
                 });
 
@@ -246,8 +242,18 @@ public class MainFrame extends JFrame {
                 add(new JScrollPane(table), BorderLayout.CENTER);
             }
 
-            public void refresh() {
+            private void refresh() {
                 tableModel.fireTableDataChanged();
+            }
+            private void clear(){
+                tableModel.clearData();
+                refresh();
+            }
+
+            private void addItemsForReturn(Sale currSale){
+                tableModel.clearData();
+                tableModel.populateFromSale(currSale);
+                refresh();
             }
         }
 
@@ -282,10 +288,20 @@ public class MainFrame extends JFrame {
                 newTransactionBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         register.newSale();
+                        registerInfoPanel.transIDLabel.setText("Transaction ID: " + register.getSaleId() + "    ");
                     }
                 });
 
                 returnTransactionBtn = new JButton("Return Transaction");
+                returnTransactionBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        register.newSale();
+                        long saleToBeReturned = Long.parseLong(JOptionPane.showInputDialog(MainFrame.this,
+                                "Enter Sale ID to start Return","Start Return", JOptionPane.INFORMATION_MESSAGE));
+                        register.setCurrSale(register.getSale(saleToBeReturned));
+                        salesTablePanel.addItemsForReturn(register.getCurrSale());
+                    }
+                });
 
 
                 addItemLabel = new JLabel("Item ID: ");
@@ -318,7 +334,39 @@ public class MainFrame extends JFrame {
 
                 removeItemBtn = new JButton("Remove Item");
                 processPaymentBtn = new JButton("Process Payment");
+
+                processPaymentBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        double amountPaid = Double.parseDouble(JOptionPane.showInputDialog(MainFrame.this,
+                                "Enter payment amount","Make Payment", JOptionPane.INFORMATION_MESSAGE));
+                        processPayment(amountPaid);
+                    }
+                });
+
                 endTransactionBtn = new JButton("End Transaction");
+
+                endTransactionBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+
+                        if(amountDue == 0){
+                            try {
+                                adjustInventory();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            register.closeSale();
+                            salesTablePanel.clear();
+                            subtotalField.setText(null);
+                            taxField.setText(null);
+                            totalField.setText(null);
+                            amountDueField.setText(null);
+                            System.out.println(register.getSale(1).toString());
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "Customer must pay remaining balance before closing the sale.", "Insufficient Payment", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
 
                 subtotalLabel = new JLabel("SubTotal: ");
                 subtotalField = new JTextField(5);
@@ -342,7 +390,49 @@ public class MainFrame extends JFrame {
                 setLayout();
             }
 
-            public void refreshTotals(){
+            private void adjustInventory() throws IOException {
+                List<Item> items = register.getCurrSale().getItems();
+                Hashtable<String, Integer> oItemHash = new Hashtable<>();
+                Enumeration itemNames;
+
+                for (Item item: items) {
+                    if (oItemHash.containsKey(item.getItemName())){
+                        int count = oItemHash.get(item.getItemName());
+                        oItemHash.put(item.getItemName(), ++count);
+                    }
+                    else{
+                        oItemHash.put(item.getItemName(),1);
+                    }
+                    //int newCount = (Inventory.getInventory(item.getItemName()) - 1) ;
+                    //System.out.println(item.getItemName() + ": " + newCount);
+                }
+
+                itemNames = oItemHash.keys();
+
+                while(itemNames.hasMoreElements()){
+                    String key = (String) itemNames.nextElement();
+                    int newCount = (Inventory.getInventory(key) - oItemHash.get(key));
+
+                    System.out.println(key + ", " + newCount);
+                    Inventory.updateItemCountInFile(key, newCount);
+                }
+            }
+
+            private void processPayment(double amountPaid){
+                DecimalFormat df = new DecimalFormat("###.##");
+
+                if(amountPaid <= amountDue){
+                    amountDue = Double.parseDouble(df.format(amountDue - amountPaid));
+                }
+                else if(amountPaid > amountDue){
+                    double newAmountPaid = Double.parseDouble(JOptionPane.showInputDialog(MainFrame.this,
+                            "Customer can not pay more than the amount due. \n Enter Payment Amount:","Payment Error", JOptionPane.INFORMATION_MESSAGE));
+                    processPayment(newAmountPaid);
+                }
+                amountDueField.setText(String.valueOf(amountDue));
+            }
+
+            private void refreshTotals(){
                 DecimalFormat df = new DecimalFormat("###.##");
 
                 subTotal = register.getSalePrice();
@@ -361,7 +451,7 @@ public class MainFrame extends JFrame {
                 amountDueField.setText(String.valueOf(amountDue));
             }
 
-            void setLayout(){
+            private void setLayout(){
                 setLayout(new GridBagLayout());
                 GridBagConstraints gc = new GridBagConstraints();
 
@@ -491,6 +581,8 @@ public class MainFrame extends JFrame {
         private InventoryTablePanel inventoryTablePanel;
         private AdjInvPanel adjInvPanel;
         InventoryTableModel tableModel;
+        int itemID;
+        String itemName;
 
         public InventoryDialog() throws FileNotFoundException {
             setTitle("Inventory Maintenance");
@@ -513,12 +605,21 @@ public class MainFrame extends JFrame {
                 tableModel = new InventoryTableModel();
                 table = new JTable(tableModel);
 
+                table.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        int selectedRow = table.rowAtPoint(e.getPoint());
+                        itemID = (int) tableModel.getValueAt(selectedRow, 1);
+                        itemName = (String) tableModel.getValueAt(selectedRow, 0);
+                        System.out.println(itemName + itemID);
+                    }
+                });
+
                 setLayout(new BorderLayout());
 
                 add(new JScrollPane(table), BorderLayout.CENTER);
             }
 
-            public void refresh() throws FileNotFoundException {
+            private void refresh() throws FileNotFoundException {
                 tableModel.setData();
                 tableModel.fireTableDataChanged();
             }
@@ -527,8 +628,7 @@ public class MainFrame extends JFrame {
 
         class AdjInvPanel extends JPanel {
             private JButton addNewItemBtn;
-            private JButton deleteItemBtn;
-            private JButton updateQuantityBtn;
+            private JButton updateItemInventoryBtn;
 
             public AdjInvPanel(){
                 Dimension dim = getPreferredSize();
@@ -536,7 +636,9 @@ public class MainFrame extends JFrame {
                 dim.height = 100;
                 setPreferredSize(dim);
                 addNewItemBtn = new JButton("Add New Item");
-                deleteItemBtn = new JButton("Delete Item");
+                //addNewItemBtn.setSize(75,25);
+                updateItemInventoryBtn = new JButton("Update Item's Inventory");
+                //updateItemInventoryBtn.setSize(75,25);
 
                 addNewItemBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
@@ -548,10 +650,28 @@ public class MainFrame extends JFrame {
                     }
                 });
 
+
+
+                updateItemInventoryBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        int newCount = Integer.parseInt(JOptionPane.showInputDialog("What is the new quantify for " + itemName + "?"));
+                        try {
+                            Inventory.updateItemCountInFile(itemName, newCount);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            inventoryTablePanel.refresh();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
                 layoutAdjInvComponents();
             }
 
-            public void layoutAdjInvComponents() {
+            private void layoutAdjInvComponents() {
 
                 setLayout(new GridBagLayout());
                 GridBagConstraints gc = new GridBagConstraints();
@@ -564,14 +684,12 @@ public class MainFrame extends JFrame {
                 gc.gridy ++;
 
                 gc.gridx = 1;
-                gc.anchor = GridBagConstraints.LINE_START;
+                gc.anchor = GridBagConstraints.CENTER;
                 add(addNewItemBtn, gc);
 
                 gc.gridy ++;
-
-                gc.gridx = 1;
-                gc.anchor = GridBagConstraints.LINE_START;
-                add(deleteItemBtn, gc);
+                gc.anchor = GridBagConstraints.CENTER;
+                add(updateItemInventoryBtn, gc);
 
             }
         }
@@ -678,7 +796,7 @@ public class MainFrame extends JFrame {
                     layoutNewItemComponents();
                 }
 
-                public void layoutNewItemComponents() {
+                private void layoutNewItemComponents() {
 
 
 
@@ -826,7 +944,7 @@ public class MainFrame extends JFrame {
                 add(new JScrollPane(table));
             }
 
-            public void refresh() throws FileNotFoundException {
+            private void refresh() throws FileNotFoundException {
                 userTableModel.setData();
                 userTableModel.fireTableDataChanged();
             }
@@ -883,7 +1001,7 @@ public class MainFrame extends JFrame {
 
             }
 
-            public void layoutAdjUserComponents() {
+            private void layoutAdjUserComponents() {
 
                 setLayout(new GridBagLayout());
                 GridBagConstraints gc = new GridBagConstraints();
@@ -1008,7 +1126,7 @@ public class MainFrame extends JFrame {
                     layoutNewUserComponents();
                 }
 
-                public void layoutNewUserComponents() {
+                private void layoutNewUserComponents() {
 
                     setLayout(new GridBagLayout());
                     GridBagConstraints gc = new GridBagConstraints();
@@ -1183,7 +1301,7 @@ public class MainFrame extends JFrame {
                     layoutChgPwdComponents();
                 }
 
-                public void layoutChgPwdComponents(){
+                private void layoutChgPwdComponents(){
                     setLayout(new GridBagLayout());
                     GridBagConstraints gc = new GridBagConstraints();
 

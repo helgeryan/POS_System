@@ -29,7 +29,6 @@ public class InventoryTableModel extends AbstractTableModel {
             Scanner rowParser = new Scanner(row);
             rowParser.useDelimiter(",");
             items.add(new Item(rowParser.next(), Integer.parseInt(rowParser.next()),Double.valueOf(rowParser.next()),Integer.parseInt(rowParser.next()), Integer.parseInt(rowParser.next()),rowParser.next(),Integer.parseInt(rowParser.next())));
-
         }
     }
 
