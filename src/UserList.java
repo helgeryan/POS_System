@@ -5,10 +5,9 @@ import java.util.Scanner;
 public class UserList {
     ArrayList<User> users = new ArrayList<>();
 
-    Scanner sc = new Scanner(new File("src\\users.txt"));
+    Scanner sc = new Scanner(new File("src/users.txt"));
 
     UserList() throws FileNotFoundException {
-
         while (sc.hasNextLine()) {
             String row = sc.nextLine();
             Scanner rowParse = new Scanner(row);

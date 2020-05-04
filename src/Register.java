@@ -38,7 +38,7 @@ public class Register {
 	}
 
 	public boolean returnEntireSale(long saleId) {
-		for(Sale sale: sales) {
+		for(Sale sale: sales) { 
 			if( sale.getId() == saleId) {
 				sales.remove(sale);
 				return true;
@@ -122,6 +122,15 @@ public class Register {
 
 	public List<Sale> getSales() {
 		return sales;
+	}
+	
+	public Sale getSale(long id) {
+		for (Sale sale: sales) {
+			if(sale.getId() == id) {
+				return sale;
+			}
+		}
+		return null;
 	}
 
 	public Sale getSale(long id) {
