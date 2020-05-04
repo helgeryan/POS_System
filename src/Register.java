@@ -133,15 +133,6 @@ public class Register {
 		return null;
 	}
 
-	public Sale getSale(long id) {
-		for (Sale sale: sales) {
-			if(sale.getId() == id) {
-				return sale;
-			}
-		}
-		return null;
-	}
-
 	@Override
 	public String toString() {
 		return "Register [id=" + id + ", cashiers=" + users + ", salePrice=" + salePrice + ", date=" + date

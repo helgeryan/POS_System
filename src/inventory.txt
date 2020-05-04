@@ -1,6 +1,6 @@
 item,ID,price,inventory,threshold,supplier,onOrder/n
 Clorox,1001,5.0,145,50,JnJ,10
-Milk,1002,2.75,50,25,Lakes,25
+Milk,1002,2.75,47,25,Lakes,25
 Beer,1003,9.0,50,30,AHB,45
 Apples,1004,1.25,100,50,FruitCo,100
 Bananas,1005,0.75,200,150,FruitCo,100
