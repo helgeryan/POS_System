@@ -14,8 +14,8 @@ public class Register {
 
 	public void newSale() {
 		currSale = new Sale();
-		currSale.setCashier(currUser);
 		currSale.setId(++saleId);
+		currSale.setCashier(currUser);
 	}
 
 	public User getCurrUser() {
@@ -37,8 +37,24 @@ public class Register {
 		sales.add(currSale);
 	}
 
+	public void addItemsBackIn(long saleId, List<Item>items){
+		for(Sale sale: sales) {
+			if(sale.getId() == saleId) {
+				sale.setItems(items);
+			}
+		}
+	}
+
+	public void makeReturnComment(long saleId, String comment){
+		for(Sale sale: sales) {
+			if( sale.getId() == saleId) {
+				sale.setComments(comment);
+			}
+		}
+	}
+
 	public boolean returnEntireSale(long saleId) {
-		for(Sale sale: sales) { 
+		for(Sale sale: sales) {
 			if( sale.getId() == saleId) {
 				sales.remove(sale);
 				return true;
@@ -47,12 +63,14 @@ public class Register {
 		return false;
 	}
 
-	public void returnSetofItems( long saleId, long ... ids ) {
+	public void removeItemFromSale(int itemID){
+		currSale.removeItem(itemID);
+	}
+
+	public void returnSingleItem(long saleId, int lineItemid) {
 		for(Sale sale: sales) {
 			if( sale.getId() == saleId) {
-				for(long id: ids) {
-					sale.removeItem(id);
-				}
+				sale.removeItem(lineItemid);
 			}
 		}
 	}
@@ -103,11 +121,14 @@ public class Register {
 	}
 
 	public long getSaleId() {
-		return saleId;
+		if(getCurrSale() != null){
+			return currSale.getId();
+		}
+		else return 0;
 	}
 
 	public void setSaleId(long saleId) {
-		this.saleId = saleId;
+		this.currSale.setId(saleId);
 	}
 
 	public void setUsers(List<User> users) {
@@ -123,7 +144,7 @@ public class Register {
 	public List<Sale> getSales() {
 		return sales;
 	}
-	
+
 	public Sale getSale(long id) {
 		for (Sale sale: sales) {
 			if(sale.getId() == id) {
