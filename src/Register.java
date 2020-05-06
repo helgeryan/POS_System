@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +27,7 @@ public class Register {
 		this.currUser = currUser;
 	}
 
-	public boolean addItemToSale(Item item, int quantity) {
+	public boolean addItemToSale(String item, int quantity) {
 		currSale.addItem(item, quantity);
 		return true;
 	}
@@ -34,7 +35,23 @@ public class Register {
 	public void closeSale() {
 		currSale.setDate();
 		currSale.setId(saleId);
-		sales.add(currSale);
+		int oldInventoryCount = 0;
+		int newInventoryCount = 0; 
+		String name;
+		try {
+			for(Item item: currSale.getItems() ) {
+				name = item.getItemName();
+				oldInventoryCount = Inventory.getInventory(name);
+				Inventory.updateItemCountInFile(name, oldInventoryCount);
+				newInventoryCount = oldInventoryCount - 1;
+				Inventory.setInventory(item.getItemName(), newInventoryCount);
+			}
+			sales.add(currSale);
+		}
+		catch(IOException e) {
+			System.out.println("ERROR");
+		}
+		
 	}
 
 	public boolean returnEntireSale(long saleId) {
@@ -48,10 +65,24 @@ public class Register {
 	}
 
 	public void returnSetofItems( long saleId, long ... ids ) {
+		Item item;
+		String name;
+		int oldInventoryCount;
+		int newInventoryCount;
 		for(Sale sale: sales) {
 			if( sale.getId() == saleId) {
-				for(long id: ids) {
-					sale.removeItem(id);
+				try {
+					for(long id: ids) {
+						item = sale.removeItem(id);
+						name = item.getItemName();
+						oldInventoryCount = Inventory.getInventory(name);
+						Inventory.updateItemCountInFile(name, oldInventoryCount);
+						newInventoryCount = oldInventoryCount + 1;
+						Inventory.setInventory(item.getItemName(), newInventoryCount);
+					}
+				}
+				catch(IOException e) {
+					System.out.println("ERROR");
 				}
 			}
 		}
