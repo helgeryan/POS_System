@@ -37,14 +37,6 @@ public class Register {
 		sales.add(currSale);
 	}
 
-	public void addItemsBackIn(long saleId, List<Item>items){
-		for(Sale sale: sales) {
-			if(sale.getId() == saleId) {
-				sale.setItems(items);
-			}
-		}
-	}
-
 	public void makeReturnComment(long saleId, String comment){
 		for(Sale sale: sales) {
 			if( sale.getId() == saleId) {

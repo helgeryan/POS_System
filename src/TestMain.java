@@ -24,7 +24,7 @@ public class TestMain {
 		p.getRegisters().get(0).returnEntireSale(1);
 		
 		//return a set of items
-		p.getRegisters().get(0).returnSetofItems(2, 1,1,1,1,1,1);
+		//p.getRegisters().get(0).returnSetofItems(2, 1,1,1,1,1,1);
 		
 		p.getRegisters().get(0).printSales();
 		System.out.println("Done");
