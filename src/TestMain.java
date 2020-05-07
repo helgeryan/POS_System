@@ -35,6 +35,12 @@ public class TestMain {
 		Reports r = new Reports();
 		r.printCurrentInventory();
 		System.out.println();
+		
+		
 		r.printSales();
+		
+		
+		
+		
 	}
 }
