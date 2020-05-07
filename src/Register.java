@@ -27,7 +27,7 @@ public class Register {
 		this.currUser = currUser;
 	}
 
-	public boolean addItemToSale(String item, int quantity) {
+	public boolean addItemToSale(Item item, int quantity) {
 		currSale.addItem(item, quantity);
 		return true;
 	}

@@ -47,26 +47,33 @@ public class Sale {
 		this.salePrice = salePrice;
 	}
 
-	public void addItem(String name, int quantity) {
-		String[] inventory = Inventory.getItem(name);
-		String[] itemData = inventory[0].split(",");
-		System.out.println(itemData[0]);
-		Item item;
-		int id;
-		double price;
-		int countOnHand;
-		int threshold;
-		String desc;
-		int onOrder;
-		for (int i = 0; i < quantity; ++i) {
-			name= itemData[0];
-			id = Integer.parseInt(itemData[1]);
-			price = Double.parseDouble(itemData[2]);
-			countOnHand = Integer.parseInt(itemData[3]);
-			threshold = Integer.parseInt(itemData[4]);
-			desc = itemData[5];
-			onOrder = Integer.parseInt(itemData[6]);
-			item = new Item(name,id, price, countOnHand, threshold, desc, onOrder);
+//	public void addItem(String name, int quantity) {
+//		String[] inventory = Inventory.getItem(name);
+//		String[] itemData = inventory[0].split(",");
+//		System.out.println(itemData[0]);
+//		Item item;
+//		int id;
+//		double price;
+//		int countOnHand;
+//		int threshold;
+//		String desc;
+//		int onOrder;
+//		for (int i = 0; i < quantity; ++i) {
+//			name= itemData[0];
+//			id = Integer.parseInt(itemData[1]);
+//			price = Double.parseDouble(itemData[2]);
+//			countOnHand = Integer.parseInt(itemData[3]);
+//			threshold = Integer.parseInt(itemData[4]);
+//			desc = itemData[5];
+//			onOrder = Integer.parseInt(itemData[6]);
+//			item = new Item(name,id, price, countOnHand, threshold, desc, onOrder);
+//			salePrice += item.getPrice();
+//			items.add(item);
+//		}
+//	}
+	
+	public void addItem(Item item, int quantity) {
+		for(int i = 0; i < quantity; ++i) {
 			salePrice += item.getPrice();
 			items.add(item);
 		}
