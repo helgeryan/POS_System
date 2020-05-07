@@ -8,11 +8,12 @@ public class UserList {
     Scanner sc = new Scanner(new File("src/users.txt"));
 
     UserList() throws FileNotFoundException {
+
         while (sc.hasNextLine()) {
             String row = sc.nextLine();
             Scanner rowParse = new Scanner(row);
             rowParse.useDelimiter(",");
-            users.add(new User(rowParse.nextInt(),rowParse.next(),rowParse.next(),rowParse.next(), rowParse.next(), rowParse.next()));
+            users.add(new User(rowParse.nextInt(),rowParse.next(),rowParse.next(),rowParse.next(), rowParse.next(), rowParse.next(), rowParse.next()));
         }
     }
 

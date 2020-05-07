@@ -16,8 +16,9 @@ public class MainFrame extends JFrame {
     private RegisterInfoPanel registerInfoPanel;
     private Register register;
     private SalesPanel salesPanel;
-    private List<Item> items;
     private User currUser;
+    private String transactionType = "Inactive";
+
     public MainFrame(POS_System POS_System, Register Register, User CurrUser) throws FileNotFoundException {
         super("Point of Sale System");
 
@@ -63,11 +64,11 @@ public class MainFrame extends JFrame {
 
         private JLabel dateLabel;
 
-        private JLabel timeLabel;
+        private JLabel transactionTypeLabel;
 
 
         Border blackline = BorderFactory.createLineBorder(Color.black);
-        String spaces = "           ";
+        String spaces = "       ";
 
 
         public RegisterInfoPanel(){
@@ -78,24 +79,41 @@ public class MainFrame extends JFrame {
                 nextSalesID = i;
             }
 
-            registerIDLabel = new JLabel("Register ID: "  ); //+ register.getId() +
+            registerIDLabel = new JLabel(spaces + "Register ID:" + register.getId() + spaces );
             registerIDLabel.setBorder(blackline);
 
-            transIDLabel = new JLabel("Transaction ID: " + nextSalesID + "    ");
+            transIDLabel = new JLabel(spaces + "Transaction ID: " + register.getSaleId() + spaces);
             transIDLabel.setBorder(blackline);
 
-            cashierLabel = new JLabel(spaces + "Cashier : "); //+ register.getCurrUser().getUsername() + spaces
+            cashierLabel = new JLabel(spaces + "Cashier: "+ register.getCurrUser().getUsername()+ spaces);
             cashierLabel.setBorder(blackline);
 
             dateLabel = new JLabel(spaces + date + spaces);
             dateLabel.setBorder(blackline);
 
-            timeLabel = new JLabel(spaces + "Time" + spaces);
-            timeLabel.setBorder(blackline);
+            transactionTypeLabel = new JLabel(spaces + transactionType + spaces);
+            transactionTypeLabel.setBorder(blackline);
 
             setVisible(true);
 
             layoutSalesComponents();
+        }
+
+        private void refreshRegisterInfoPanel(){
+
+            if(transactionType.equals("Sale")){
+                transIDLabel.setText(spaces + "Transaction ID: " + register.getSaleId() + spaces);
+            }
+            else if(transactionType.equals("Return")){
+                transIDLabel.setText(spaces +"Transaction ID: " + salesPanel.salesBtnPanel.saleToBeRecalled + spaces);
+            }
+            else{
+                transIDLabel.setText(spaces +"Transaction ID: Inactive"  + spaces);
+            }
+            registerIDLabel.setText(spaces + "Register ID:" + register.getId() + spaces);
+            cashierLabel.setText(spaces + "Cashier: "+ register.getCurrUser().getUsername()+ spaces);
+            dateLabel.setText(spaces + date + spaces);
+            transactionTypeLabel.setText(spaces + transactionType + spaces);
         }
 
         private void layoutSalesComponents(){
@@ -127,7 +145,7 @@ public class MainFrame extends JFrame {
             gc.gridx = 4;
             gc.gridwidth = 2;
             gc.anchor = GridBagConstraints.CENTER;
-            add(timeLabel, gc);
+            add(transactionTypeLabel, gc);
         }
     }
 
@@ -135,6 +153,7 @@ public class MainFrame extends JFrame {
 
         private JButton invBtn;
         private JButton userBtn;
+        private JButton returnsBtn;
         private JButton reportingbtn;
         public MainPanel(){
 
@@ -145,6 +164,7 @@ public class MainFrame extends JFrame {
 
             invBtn = new JButton("Inventory");
             userBtn = new JButton("User Management");
+            returnsBtn = new JButton("Returns");
             reportingbtn = new JButton("Reporting");
             setLayout(new GridBagLayout());
 
@@ -156,7 +176,7 @@ public class MainFrame extends JFrame {
 
 
             gc.gridx = 1;
-            add(invBtn);
+            add(invBtn, gc);
 
             invBtn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
@@ -171,7 +191,7 @@ public class MainFrame extends JFrame {
             });
 
             gc.gridx = 2;
-            add(userBtn);
+            add(userBtn, gc);
 
             userBtn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
@@ -185,7 +205,24 @@ public class MainFrame extends JFrame {
             });
 
             gc.gridx = 3;
-            add(reportingbtn);
+            add(returnsBtn, gc);
+
+            returnsBtn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+
+                    if(transactionType.equals("Sale")){
+                        JOptionPane.showMessageDialog(MainFrame.this, "Please finish the current transaction before starting a return.", "Return Errorr", JOptionPane.OK_OPTION);
+                    }
+                    else{
+                        ReturnsDialog returnsDialog = new ReturnsDialog();
+                        returnsDialog.setVisible(true);
+                    }
+
+                }
+            });
+
+            gc.gridx = 4;
+            add(reportingbtn, gc);
         }
     }
 
@@ -195,6 +232,11 @@ public class MainFrame extends JFrame {
         private ArrayList<Item> items;
         private TransactionTableModel tableModel;
         private int selectedRow;
+        private int selectedLineItem;
+        private String selectedItemName;
+        private double selectedItemPrice;
+        private long selectedItemID;
+
         public SalesPanel(){
             salesBtnPanel = new SalesBtnPanel();
             salesTablePanel = new SalesTablePanel();
@@ -204,6 +246,8 @@ public class MainFrame extends JFrame {
             setLayout(new BorderLayout());
             add(salesTablePanel, BorderLayout.CENTER);
             add(salesBtnPanel, BorderLayout.EAST);
+
+            salesBtnPanel.toggleControls();
 
             setSize(950,700);
             setVisible(true);
@@ -232,8 +276,11 @@ public class MainFrame extends JFrame {
                 table.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         selectedRow = table.rowAtPoint(e.getPoint());
-                        int itemID = (int) tableModel.getValueAt(selectedRow, 0);
-                        System.out.println(itemID);
+                        System.out.println(selectedRow);
+                        selectedLineItem = (int) tableModel.getValueAt(selectedRow, 0);
+                        selectedItemName = (String) tableModel.getValueAt(selectedRow, 2);
+                        selectedItemPrice = (double) tableModel.getValueAt(selectedRow, 3);
+                        selectedItemID = Long.parseLong(String.valueOf(tableModel.getValueAt(selectedRow, 1)));
                     }
                 });
 
@@ -255,11 +302,21 @@ public class MainFrame extends JFrame {
                 tableModel.populateFromSale(currSale);
                 refresh();
             }
+
+            private void populateTable(Sale currSale){
+                tableModel.clearData();
+                tableModel.populateFromSale(currSale);
+                refresh();
+            }
+
+            private void removeItemFromTable(int LineItemID){
+                tableModel.removeItemFromTable(LineItemID);
+                refresh();
+            }
         }
 
         class SalesBtnPanel extends JPanel{
-            private JButton newTransactionBtn;
-            private JButton returnTransactionBtn;
+            private JButton newSaleBtn;
             private JButton removeItemBtn;
             private JButton processPaymentBtn;
             private JButton endTransactionBtn;
@@ -270,36 +327,29 @@ public class MainFrame extends JFrame {
             private JTextField qtyField;
             private JButton addItemBtn;
 
-            private JLabel subtotalLabel;
-            private JTextField subtotalField;
-            private JLabel taxLabel;
-            private JTextField taxField;
             private JLabel totalLabel;
             private JTextField totalField;
             private JLabel amountDueLabel;
             private JTextField amountDueField;
-            private double subTotal;
             private double saleTotal;
-            private double tax;
             private double amountDue;
+            private long saleToBeRecalled;
+
 
             public SalesBtnPanel(){
-                newTransactionBtn = new JButton("New Transaction");
-                newTransactionBtn.addActionListener(new ActionListener() {
+                newSaleBtn = new JButton("New Sale");
+                newSaleBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         register.newSale();
-                        registerInfoPanel.transIDLabel.setText("Transaction ID: " + register.getSaleId() + "    ");
-                    }
-                });
-
-                returnTransactionBtn = new JButton("Return Transaction");
-                returnTransactionBtn.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        register.newSale();
-                        long saleToBeReturned = Long.parseLong(JOptionPane.showInputDialog(MainFrame.this,
-                                "Enter Sale ID to start Return","Start Return", JOptionPane.INFORMATION_MESSAGE));
-                        register.setCurrSale(register.getSale(saleToBeReturned));
-                        salesTablePanel.addItemsForReturn(register.getCurrSale());
+                        transactionType = "Sale";
+                        toggleControls();
+                        addItemBtn.setEnabled(true);
+                        addItemField.setEnabled(true);
+                        qtyField.setEnabled(true);
+                        registerInfoPanel.refreshRegisterInfoPanel();
+                        salesTablePanel.clear();
+                        System.out.println(register.getSaleId());
+                        amountDue = 0;
                     }
                 });
 
@@ -333,6 +383,21 @@ public class MainFrame extends JFrame {
                 });
 
                 removeItemBtn = new JButton("Remove Item");
+
+                removeItemBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+
+                        register.removeItemFromSale(selectedLineItem);
+                        salesTablePanel.removeItemFromTable(selectedLineItem);
+                        salesTablePanel.refresh();
+                        System.out.println(register.getCurrSale());
+                        register.setSalePrice(register.getCurrSale().getSalePrice());
+                        refreshTotals();
+
+
+                    }
+                });
+
                 processPaymentBtn = new JButton("Process Payment");
 
                 processPaymentBtn.addActionListener(new ActionListener() {
@@ -347,48 +412,56 @@ public class MainFrame extends JFrame {
 
                 endTransactionBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
-
-                        if(amountDue == 0){
-                            try {
-                                adjustInventory();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            register.closeSale();
-                            salesTablePanel.clear();
-                            subtotalField.setText(null);
-                            taxField.setText(null);
-                            totalField.setText(null);
-                            amountDueField.setText(null);
-                            System.out.println(register.getSale(1).toString());
-                        }
-                        else{
-                            JOptionPane.showMessageDialog(MainFrame.this, "Customer must pay remaining balance before closing the sale.", "Insufficient Payment", JOptionPane.ERROR_MESSAGE);
-                        }
+                        terminateTransaction();
                     }
                 });
-
-                subtotalLabel = new JLabel("SubTotal: ");
-                subtotalField = new JTextField(5);
-                subtotalField.setEditable(false);
-
-                taxLabel = new JLabel("Tax: ");
-                taxField = new JTextField(5);
-                taxField.setEditable(false);
 
                 totalLabel = new JLabel("Total: ");
                 totalField = new JTextField(5);
                 totalField.setEditable(false);
 
-                amountDueLabel = new JLabel("Amount still due: ");
+                amountDueLabel = new JLabel("Amount due: ");
                 amountDueField = new JTextField(5);
                 amountDueField.setEditable(false);
+
 
 
                 setSize(200,700);
                 setVisible(true);
                 setLayout();
             }
+
+            private void terminateTransaction(){
+
+                if(amountDue == 0){
+                    try {
+                        adjustInventory();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    register.closeSale();
+                    amountDue = 0;
+                    System.out.println(register.getSale(register.getSaleId()).toString());
+                }
+                else if(amountDue<0){
+                    JOptionPane.showMessageDialog(MainFrame.this, "You owe the customer $" + Math.abs(amountDue) + " back in change.", "Change Due", JOptionPane.INFORMATION_MESSAGE);
+                    register.closeSale();
+                    amountDue = 0;
+                }
+                else if(amountDue > 0){
+                    JOptionPane.showMessageDialog(MainFrame.this, "Customer must pay remaining balance before closing the sale.", "Insufficient Payment", JOptionPane.ERROR_MESSAGE);
+                }
+
+                System.out.println(register.toString());
+                salesTablePanel.clear();
+                totalField.setText(null);
+                amountDueField.setText(null);
+                transactionType = "Inactive";
+                toggleControls();
+                registerInfoPanel.refreshRegisterInfoPanel();
+            }
+
+
 
             private void adjustInventory() throws IOException {
                 List<Item> items = register.getCurrSale().getItems();
@@ -403,8 +476,6 @@ public class MainFrame extends JFrame {
                     else{
                         oItemHash.put(item.getItemName(),1);
                     }
-                    //int newCount = (Inventory.getInventory(item.getItemName()) - 1) ;
-                    //System.out.println(item.getItemName() + ": " + newCount);
                 }
 
                 itemNames = oItemHash.keys();
@@ -421,34 +492,39 @@ public class MainFrame extends JFrame {
             private void processPayment(double amountPaid){
                 DecimalFormat df = new DecimalFormat("###.##");
 
-                if(amountPaid <= amountDue){
-                    amountDue = Double.parseDouble(df.format(amountDue - amountPaid));
-                }
-                else if(amountPaid > amountDue){
-                    double newAmountPaid = Double.parseDouble(JOptionPane.showInputDialog(MainFrame.this,
-                            "Customer can not pay more than the amount due. \n Enter Payment Amount:","Payment Error", JOptionPane.INFORMATION_MESSAGE));
-                    processPayment(newAmountPaid);
-                }
+                amountDue = Double.parseDouble(df.format(amountDue - amountPaid));
+
                 amountDueField.setText(String.valueOf(amountDue));
             }
 
             private void refreshTotals(){
                 DecimalFormat df = new DecimalFormat("###.##");
-
-                subTotal = register.getSalePrice();
-                subTotal = Double.parseDouble(df.format(subTotal));
-                saleTotal = subTotal * 1.075;
-                saleTotal = Double.parseDouble(df.format(saleTotal));
-                tax = saleTotal - subTotal;
-                tax = Double.parseDouble(df.format(tax));
-                amountDue = saleTotal;
-
-                subtotalField.setText(String.valueOf(subTotal));
-                taxField.setText(String.valueOf(tax));
+                saleTotal = Double.parseDouble(df.format(register.getSalePrice()));
+                if(transactionType.equals("Sale")){
+                    amountDue = saleTotal;
+                }
                 totalField.setText(String.valueOf(saleTotal));
-                register.setSalePrice(saleTotal);
-
                 amountDueField.setText(String.valueOf(amountDue));
+            }
+
+            private void toggleControls(){
+                if(transactionType.equals("Inactive")){
+                    addItemField.setEnabled(false);
+                    qtyField.setEnabled(false);
+                    addItemBtn.setEnabled(false);
+                    removeItemBtn.setEnabled(false);
+                    processPaymentBtn.setEnabled(false);
+                    endTransactionBtn.setEnabled(false);
+                }
+                else if(transactionType.equals("Sale")){
+                    addItemField.setEnabled(true);
+                    qtyField.setEnabled(true);
+                    addItemBtn.setEnabled(true);
+                    removeItemBtn.setEnabled(true);
+                    processPaymentBtn.setEnabled(true);
+                    endTransactionBtn.setEnabled(true);
+                }
+
             }
 
             private void setLayout(){
@@ -462,12 +538,8 @@ public class MainFrame extends JFrame {
                 gc.gridx = 1;
                 gc.gridy = 1;
                 gc.anchor = GridBagConstraints.CENTER;
-                add(newTransactionBtn, gc);
+                add(newSaleBtn, gc);
 
-                gc.gridx = 1;
-                gc.gridy =2;
-                gc.anchor = GridBagConstraints.CENTER;
-                add(returnTransactionBtn, gc);
 
                 gc.weighty = .1;
                 gc.gridx = 1;
@@ -500,12 +572,12 @@ public class MainFrame extends JFrame {
                 gc.weighty = .02;
                 gc.gridx = 1;
                 gc.gridy =6;
-                gc.anchor = GridBagConstraints.LINE_START;
+                gc.anchor = GridBagConstraints.CENTER;
                 add(addItemBtn, gc);
 
                 gc.gridx = 1;
                 gc.gridy = 7;
-                gc.anchor = GridBagConstraints.LINE_START;
+                gc.anchor = GridBagConstraints.CENTER;
                 add(removeItemBtn, gc);
 
                 gc.weighty = .1;
@@ -516,65 +588,42 @@ public class MainFrame extends JFrame {
                 gc.weighty = .02;
                 gc.gridx = 1;
                 gc.gridy = 9;
-                gc.anchor = GridBagConstraints.LINE_START;
+                gc.anchor = GridBagConstraints.CENTER;
                 add(processPaymentBtn, gc);
 
                 gc.gridx = 1;
                 gc.gridy = 10;
-                gc.anchor = GridBagConstraints.LINE_START;
+                gc.anchor = GridBagConstraints.CENTER;
                 add(endTransactionBtn, gc);
 
                 ///// Totals section /////
 
-                gc.weighty = .02;
-                gc.gridx = 1;
+
                 gc.gridwidth = 1;
+                gc.gridx = 1;
                 gc.gridy = 11;
-                gc.anchor = GridBagConstraints.LINE_END;
-                add(subtotalLabel, gc);
-
-                gc.gridx = 1;
-                gc.gridy = 12;
-                gc.anchor = GridBagConstraints.LINE_END;
-                add(taxLabel, gc);
-
-                gc.gridx = 1;
-                gc.gridy = 13;
                 gc.anchor = GridBagConstraints.LINE_END;
                 add(totalLabel, gc);
 
                 gc.gridx = 1;
-                gc.gridy = 14;
+                gc.gridy = 12;
                 gc.anchor = GridBagConstraints.LINE_END;
                 add(amountDueLabel, gc);
 
-                gc.weighty = .02;
                 gc.gridx = 2;
                 gc.gridy = 11;
-                gc.anchor = GridBagConstraints.LINE_START;
-                add(subtotalField, gc);
-
-                gc.gridx = 2;
-                gc.gridy = 12;
-                gc.anchor = GridBagConstraints.LINE_START;
-                add(taxField, gc);
-
-                gc.gridx = 2;
-                gc.gridy = 13;
                 gc.anchor = GridBagConstraints.LINE_START;
                 add(totalField, gc);
 
                 gc.gridx = 2;
-                gc.gridy = 14;
+                gc.gridy = 12;
                 gc.anchor = GridBagConstraints.LINE_START;
                 add(amountDueField, gc);
+
+
             }
         }
     }
-
-
-
-
 
     class InventoryDialog extends JDialog {
 
@@ -1374,6 +1423,304 @@ public class MainFrame extends JFrame {
             }
         }
     }
+
+    class ReturnsDialog extends JDialog {
+
+        ReturnsTextPanel returnsTextPanel;
+        ReturnsBtnPanel returnsBtnPanel;
+        long recalledSaleID;
+
+        private Hashtable<String, Integer> returnedItems = new Hashtable<>();
+
+        public ReturnsDialog(){
+            setLayout(new BorderLayout());
+
+            returnsTextPanel = new ReturnsTextPanel();
+            returnsBtnPanel = new ReturnsBtnPanel();
+
+            add(returnsBtnPanel, BorderLayout.EAST);
+            add(returnsTextPanel, BorderLayout.CENTER);
+            setSize(new Dimension(800,500));
+            setLocationRelativeTo(null);
+        }
+
+        class ReturnsTextPanel extends JPanel{
+            JTextPane leftTextPane;
+            JTextPane rightTextPane;
+            Border blackline = BorderFactory.createLineBorder(Color.black);
+
+            public ReturnsTextPanel(){
+                Dimension dim = new Dimension(225, 375);
+
+                leftTextPane = new JTextPane();
+                leftTextPane.setBorder(blackline);
+                leftTextPane.setEditable(false);
+                leftTextPane.setPreferredSize(dim);
+
+                rightTextPane = new JTextPane();
+                rightTextPane.setBorder(blackline);
+                rightTextPane.setEditable(false);
+                rightTextPane.setPreferredSize(dim);
+
+                add(leftTextPane);
+                add(rightTextPane);
+                setSize(500,400);
+            }
+        }
+
+        class ReturnsBtnPanel extends JPanel {
+
+            private JButton loadTranscionBtn;
+            private JButton returnEntireTransactionBtn;
+            private JLabel itemLabel;
+            private JTextField itemField;
+            private JButton returnSingleItemBtn;
+            private JButton termTransactionBtn;
+            private JLabel amountDueBackLabel;
+            private JTextField amountDueBackField;
+            private double amountDueBack;
+            private String leftPaneMessage = "";
+            private String rightPaneMessage = "Items being returned: \n";
+            private String leftPaneHeader;
+            private String itemList;
+
+            public ReturnsBtnPanel(){
+
+                loadTranscionBtn = new JButton("Load Transaction");
+                loadTranscionBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        boolean saleFound = false;
+                        recalledSaleID = Long.parseLong(JOptionPane.showInputDialog(MainFrame.this, "What is the Sale ID of the transaction?", "Get Sale ID", JOptionPane.INFORMATION_MESSAGE));
+                        for(Sale sale: register.getSales()){
+                            if(sale.getId() == recalledSaleID){
+                                saleFound = true;
+                                break;
+                            }
+                        }
+                        if (saleFound){
+                            refreshLeftTextPane();
+                            returnEntireTransactionBtn.setEnabled(true);
+                            itemLabel.setEnabled(true);
+                            itemField.setEnabled(true);
+                            returnSingleItemBtn.setEnabled(true);
+                            termTransactionBtn.setEnabled(true);
+                            loadTranscionBtn.setEnabled(false);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "The Sale ID entered was not found. Enter different Sale ID");
+                        }
+
+
+                    }
+                });
+
+                returnEntireTransactionBtn = new JButton("Return Entire Sale");
+                returnEntireTransactionBtn.setEnabled(false);
+                returnEntireTransactionBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        returnAllItems();
+                        refreshLeftTextPane();
+                        rightPaneMessage = "All items in sale: "+ recalledSaleID +"have been returned.\n";
+                        returnsTextPanel.rightTextPane.setText(rightPaneMessage);
+                    }
+                });
+
+                itemLabel = new JLabel("Line Item Number: ");
+                itemLabel.setEnabled(false);
+                itemField = new JTextField(10);
+                itemField.setEnabled(false);
+
+                returnSingleItemBtn = new JButton("Return single Item");
+                returnSingleItemBtn.setEnabled(false);
+                returnSingleItemBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        int lineItemNumber = Integer.parseInt(itemField.getText());
+                        String itemName = register.getSale(recalledSaleID).getItems().get(lineItemNumber).getItemName();
+                        double itemPrice = register.getSale(recalledSaleID).getItems().get(lineItemNumber).getPrice();
+                        amountDueBack = amountDueBack + itemPrice;
+                        DecimalFormat df = new DecimalFormat("##.##");
+                        amountDueBack = Double.parseDouble(df.format(amountDueBack));
+                        amountDueBackField.setText("-" + String.valueOf(amountDueBack));
+
+                        if (returnedItems.containsKey(itemName)){
+                            int count = returnedItems.get(itemName);
+                            returnedItems.put(itemName, ++count);
+                        }
+                        else{
+                            returnedItems.put(itemName,1);
+                        }
+
+                        register.returnSingleItem(recalledSaleID, lineItemNumber);
+                        register.makeReturnComment(recalledSaleID, itemName + ", -" + itemPrice);
+                        rightPaneMessage = rightPaneMessage + "Line Item " + lineItemNumber + ": " + itemName + ", -" + itemPrice + "\n";
+                        returnsTextPanel.rightTextPane.setText(rightPaneMessage);
+                        refreshLeftTextPane();
+                        itemField.setText(null);
+                    }
+                });
+
+                amountDueBackLabel = new JLabel("Amount due: ");
+                amountDueBackField = new JTextField(7);
+                amountDueBackField.setEditable(false);
+
+                termTransactionBtn = new JButton("Terminate Transaction");
+                termTransactionBtn.setEnabled(false);
+                termTransactionBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        JOptionPane.showMessageDialog(MainFrame.this, "You owe the customer $" + amountDueBack + ".");
+                        adjustInventoryReturn();
+                        dispose();
+                    }
+                });
+
+                setLayout();
+
+                Dimension dim = getPreferredSize();
+                dim.width = 300;
+                dim.height = 100;
+                setPreferredSize(dim);
+
+            }
+
+            private void setLayout(){
+                setLayout(new GridBagLayout());
+
+                GridBagConstraints gc = new GridBagConstraints();
+
+                gc.weightx = 1;
+                gc.gridwidth = 3;
+                gc.weighty = .5;
+                gc.anchor = GridBagConstraints.CENTER;
+
+                gc.gridx = 0;
+                gc.gridy = 0;
+                add(loadTranscionBtn, gc);
+
+                gc.weighty = .05;
+                gc.gridy = 2;
+                add(returnEntireTransactionBtn, gc);
+
+                gc.weighty = 1;
+                gc.gridwidth = 3;
+                gc.gridx = 0;
+                gc.anchor = GridBagConstraints.CENTER;
+                gc.gridy = 3;
+                add(new JLabel(" "), gc);
+
+                gc.weighty = .05;
+                gc.gridwidth = 1;
+                gc.gridx = 0;
+                gc.gridy = 4;
+                gc.anchor = GridBagConstraints.FIRST_LINE_END;
+                add(itemLabel, gc);
+
+                gc.gridx = 1;
+                gc.gridy = 4;
+                gc.anchor = GridBagConstraints.FIRST_LINE_START;
+                add(itemField, gc);
+
+                gc.weighty = .01;
+                gc.gridwidth = 3;
+                gc.gridx = 0;
+                gc.anchor = GridBagConstraints.CENTER;
+                gc.gridy = 5;
+                add(returnSingleItemBtn, gc);
+
+                gc.weighty = .5;
+                gc.gridwidth = 3;
+                gc.gridx = 0;
+                gc.anchor = GridBagConstraints.CENTER;
+                gc.gridy = 6;
+                add(new JLabel(" "), gc);
+
+
+                gc.weighty = .05;
+                gc.gridwidth = 1;
+                gc.gridx = 0;
+                gc.gridy = 7;
+                gc.anchor = GridBagConstraints.FIRST_LINE_END;
+                add(amountDueBackLabel, gc);
+
+                gc.gridx = 1;
+                gc.gridy = 7;
+                gc.anchor = GridBagConstraints.FIRST_LINE_START;
+                add(amountDueBackField, gc);
+
+                gc.weighty = .05;
+                gc.gridwidth = 3;
+                gc.gridx = 0;
+                gc.anchor = GridBagConstraints.CENTER;
+                gc.gridy = 8;
+                add(termTransactionBtn, gc);
+
+                gc.weighty = 1;
+                gc.gridwidth = 3;
+                gc.gridx = 0;
+                gc.anchor = GridBagConstraints.CENTER;
+                gc.gridy = 9;
+                add(new JLabel(" "), gc);
+            }
+
+            private void returnAllItems(){
+                List<Item> returnedItemList = register.getSale(recalledSaleID).getItems();
+                while(returnedItemList.size()>0){
+                    amountDueBack = amountDueBack + returnedItemList.get(0).getPrice();
+                    String itemName = returnedItemList.get(0).getItemName();
+                    double itemPrice = returnedItemList.get(0).getPrice();
+                    if (returnedItems.containsKey(itemName)){
+                        int count = returnedItems.get(itemName);
+                        returnedItems.put(itemName, ++count);
+                    }
+                    else{
+                        returnedItems.put(itemName,1);
+                    }
+                    register.returnSingleItem(recalledSaleID, 0);
+                    register.makeReturnComment(recalledSaleID, itemName + ", -" + itemPrice);
+                    returnAllItems();
+                }
+                amountDueBackField.setText("-" + amountDueBack);
+            }
+
+            private void refreshLeftTextPane(){
+                leftPaneHeader = leftPaneHeader + "Sale '" + recalledSaleID + "' Loaded Sucessfully.\n";
+                returnsTextPanel.leftTextPane.setText(leftPaneMessage);
+                leftPaneHeader = "Sale ID: " + register.getSale(recalledSaleID).getId() +
+                        "; Cashier: " + register.getSale(recalledSaleID).getCashier() +
+                        "; \nDate: " + register.getSale(recalledSaleID).getDate() + "\n";
+                itemList = getItemsInSale();
+                leftPaneMessage = leftPaneHeader + itemList + "\n" + register.getSale(recalledSaleID).getComment() + "\n";
+                returnsTextPanel.leftTextPane.setText(leftPaneMessage);
+            }
+
+            private String getItemsInSale(){
+                List<Item> items = register.getSale(recalledSaleID).getItems();
+                String itemString = "";
+                for(int i = 0; i< items.size(); i++){
+                    itemString = itemString + i + ") " + items.get(i).getItemName() + ", Price: " + items.get(i).getPrice() + "\n";
+                }
+                return itemString;
+            }
+
+            private void adjustInventoryReturn() {
+                Enumeration itemNames;
+                itemNames = returnedItems.keys();
+
+                while(itemNames.hasMoreElements()){
+                    String key = (String) itemNames.nextElement();
+                    int newCount = (Inventory.getInventory(key) + returnedItems.get(key));
+
+                    try {
+                        Inventory.updateItemCountInFile(key, newCount);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        }
+
+    }
+
     class ReportingDialog extends JDialog{
 
     }

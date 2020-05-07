@@ -4,7 +4,7 @@ import java.util.List;
 
 public class TransactionTableModel extends AbstractTableModel {
 
-    String[] colName = {"Item ID", "Item Name", "Price"};
+    String[] colName = {"Line Item Number","Item ID", "Item Name", "Price"};
     List<Item> itemsInSale;
 
     public TransactionTableModel(){
@@ -26,6 +26,10 @@ public class TransactionTableModel extends AbstractTableModel {
         }
     }
 
+    public void removeItemFromTable(int LineItemID){
+        itemsInSale.remove(LineItemID);
+    }
+
     public void populateFromSale(Sale currSale){
         itemsInSale = currSale.getItems();
     }
@@ -38,7 +42,7 @@ public class TransactionTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -46,12 +50,11 @@ public class TransactionTableModel extends AbstractTableModel {
         Item item = itemsInSale.get(row);
 
         switch (col){
-            case 0: return item.getItemID();
-            case 1: return item.getItemName();
-            case 2: return item.getPrice();
+            case 0: return row;
+            case 1: return item.getItemID();
+            case 2: return item.getItemName();
+            case 3: return item.getPrice();
         }
-
-
         return null;
     }
 }

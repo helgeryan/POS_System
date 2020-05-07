@@ -6,15 +6,23 @@ public class Sale {
 	private List<Item> items;
 	private double salePrice;
 	private Date date;
-	private long id = 1;
-	private User cashier;
+	private long id = 0;
+	private String cashier;
+	private String comment = "Items returned from this transaction: ";
 
-	public User getCashier() {
+	public String getCashier() {
 		return cashier;
 	}
 
+	public void setComments(String Comment){
+		this.comment = comment + "\n" +Comment;
+	}
+	public String getComment(){
+		return this.comment;
+	}
+
 	public void setCashier(User cashier) {
-		this.cashier = cashier;
+		this.cashier = cashier.getUsername();
 	}
 
 	public Sale() {
@@ -82,6 +90,11 @@ public class Sale {
 		}
 		return null;
 	}
+	
+	public void removeItem(int LineItemId) {
+		salePrice -= items.get(LineItemId).getPrice();
+		items.remove(LineItemId);
+	}
 
 	public void printSale() {
 		for( int i = 0; i < items.size(); ++i) {
@@ -105,12 +118,14 @@ public class Sale {
 	public String toString() {
 		String retString = "Sale at Date/Time " + date + "\n";
 		retString += "Sale ID: " + id + "\n";
-		retString += "Cashier: " + cashier.getUsername() + "\n";
+		retString += "Cashier: " + cashier + "\n";
 
 		for (Item item: items) {
 			retString += item.getItemName() + " $" + item.getPrice() + "\n";
 		}
-		retString += "Total price: $" + (int)(this.getSalePrice()*100)/100.0;
+		retString += "Total price: $" + (int)(this.getSalePrice()*100)/100.0 + "\n";
+		retString += comment;
 		return retString ;
 	}
+
 }
