@@ -31,5 +31,10 @@ public class TestMain {
 		
 		System.out.println(p.getRegisters().get(0).getSale(1));
 		System.out.println(p.getRegisters().get(0).getSale(2));
+		
+		Reports r = new Reports();
+		r.printCurrentInventory();
+		System.out.println();
+		r.printSales();
 	}
 }
