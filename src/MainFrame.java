@@ -1,3 +1,5 @@
+import javafx.scene.control.DatePicker;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -21,7 +23,7 @@ public class MainFrame extends JFrame {
 
     public MainFrame(POS_System POS_System, Register Register, User CurrUser) throws FileNotFoundException {
         super("Point of Sale System");
-
+        setResizable(false);
         pos_system = new POS_System();
         pos_system = POS_System;
 
@@ -223,6 +225,24 @@ public class MainFrame extends JFrame {
 
             gc.gridx = 4;
             add(reportingbtn, gc);
+            reportingbtn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    if(transactionType.equals("Sale")){
+                        JOptionPane.showMessageDialog(MainFrame.this, "Please finish the current transaction before starting entering the reporting section.", "Reporting Errorr", JOptionPane.OK_OPTION);
+                    }
+                    else{
+                        ReportingDialog reportingDialog = null;
+                        try {
+                            reportingDialog = new ReportingDialog();
+                            reportingDialog.setVisible(true);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+            });
+
         }
     }
 
@@ -630,11 +650,11 @@ public class MainFrame extends JFrame {
         private InventoryTablePanel inventoryTablePanel;
         private AdjInvPanel adjInvPanel;
         InventoryTableModel tableModel;
-        int itemID;
-        String itemName;
+        private Item selectedItem;
 
         public InventoryDialog() throws FileNotFoundException {
             setTitle("Inventory Maintenance");
+            setResizable(false);
             inventoryTablePanel = new InventoryTablePanel();
             adjInvPanel = new AdjInvPanel();
 
@@ -654,18 +674,27 @@ public class MainFrame extends JFrame {
                 tableModel = new InventoryTableModel();
                 table = new JTable(tableModel);
 
+
                 table.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         int selectedRow = table.rowAtPoint(e.getPoint());
-                        itemID = (int) tableModel.getValueAt(selectedRow, 1);
-                        itemName = (String) tableModel.getValueAt(selectedRow, 0);
-                        System.out.println(itemName + itemID);
+                        String itemName = (String) tableModel.getValueAt(selectedRow, 0);
+                        int itemID = (int) tableModel.getValueAt(selectedRow, 1);
+                        double itemPrice = (double) tableModel.getValueAt(selectedRow, 2);
+                        int countOnHand = (int) tableModel.getValueAt(selectedRow, 3);
+                        int threshold = (int) tableModel.getValueAt(selectedRow, 4);
+                        String supplier = (String) tableModel.getValueAt(selectedRow, 5);
+                        int countOnOrder = (int) tableModel.getValueAt(selectedRow, 6);
+                        selectedItem = new Item(itemName, itemID, itemPrice, countOnHand, threshold, supplier, countOnOrder);
+                        System.out.println(selectedItem.toString());
                     }
                 });
 
                 setLayout(new BorderLayout());
 
                 add(new JScrollPane(table), BorderLayout.CENTER);
+
+                setPreferredSize(new Dimension(600,500));
             }
 
             private void refresh() throws FileNotFoundException {
@@ -677,18 +706,23 @@ public class MainFrame extends JFrame {
 
         class AdjInvPanel extends JPanel {
             private JButton addNewItemBtn;
+            private JTextArea instructionLabel;
+            private JButton updateItemNameBtn;
+            private JButton updateItemPriceBtn;
             private JButton updateItemInventoryBtn;
+            private JButton updateItemThresholdBtn;
+            private JButton updateItemSupplierBtn;
+            private JButton updateItemCountOnOrder;
 
             public AdjInvPanel(){
+
+                Border blackline = BorderFactory.createLineBorder(Color.black);
                 Dimension dim = getPreferredSize();
-                dim.width = 150;
+                dim.width = 200;
                 dim.height = 100;
                 setPreferredSize(dim);
                 addNewItemBtn = new JButton("Add New Item");
-                //addNewItemBtn.setSize(75,25);
-                updateItemInventoryBtn = new JButton("Update Item's Inventory");
-                //updateItemInventoryBtn.setSize(75,25);
-
+                addNewItemBtn.setPreferredSize(new Dimension(150,25));
                 addNewItemBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         try {
@@ -699,25 +733,95 @@ public class MainFrame extends JFrame {
                     }
                 });
 
+                instructionLabel = new JTextArea("Select an item to the left \nbefore pressing a button \nbelow.");
+                instructionLabel.setLineWrap(true);
+                instructionLabel.setEditable(false);
+                instructionLabel.setFocusable(false);
+                instructionLabel.setBorder(blackline);
+                instructionLabel.setPreferredSize(new Dimension(150, 50));
 
+                updateItemNameBtn = new JButton("Update Name");
+                updateItemNameBtn.setPreferredSize(new Dimension(150,25));
+                updateItemNameBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        String newName = JOptionPane.showInputDialog("What is the new name for " + selectedItem.getItemName() + "?");
 
+                        if(!newName.equals("")){
+                            selectedItem.setItemName(newName);
+                            updateSelectedItem();
+                        }
+
+                    }
+                });
+
+                updateItemPriceBtn = new JButton("Update Price");
+                updateItemPriceBtn.setPreferredSize(new Dimension(150,25));
+                updateItemPriceBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        double newPrice = Double.parseDouble(JOptionPane.showInputDialog("What is the new price for a single unit of " + selectedItem.getItemName() + "?"));
+                        selectedItem.setPrice(newPrice);
+                        updateSelectedItem();
+                    }
+                });
+
+                updateItemInventoryBtn = new JButton("Update On Hand");
+                updateItemInventoryBtn.setPreferredSize(new Dimension(150,25));
                 updateItemInventoryBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
-                        int newCount = Integer.parseInt(JOptionPane.showInputDialog("What is the new quantify for " + itemName + "?"));
-                        try {
-                            Inventory.updateItemCountInFile(itemName, newCount);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        int newCount = Integer.parseInt(JOptionPane.showInputDialog("What is the new on hand count for " + selectedItem.getItemName() + "?"));
+                        selectedItem.setCountOnHand(newCount);
+                        updateSelectedItem();
+                    }
+                });
+
+                updateItemThresholdBtn = new JButton("Update Threshold");
+                updateItemThresholdBtn.setPreferredSize(new Dimension(150,25));
+                updateItemThresholdBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        int newThreshold = Integer.parseInt(JOptionPane.showInputDialog("What is the threshold count for " + selectedItem.getItemName() + "?"));
+                        selectedItem.setThreshold(newThreshold);
+                        updateSelectedItem();
+                    }
+                });
+
+                updateItemSupplierBtn = new JButton("Update Supplier");
+                updateItemSupplierBtn.setPreferredSize(new Dimension(150,25));
+                updateItemSupplierBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        String newSupplier = JOptionPane.showInputDialog("What is the new supplier for " + selectedItem.getItemName() + "?");
+
+                        if (!newSupplier.equals("")){
+                            selectedItem.setSupplier(newSupplier);
+                            updateSelectedItem();
                         }
-                        try {
-                            inventoryTablePanel.refresh();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
+
+                    }
+                });
+
+                updateItemCountOnOrder = new JButton("Update On Order");
+                updateItemCountOnOrder.setPreferredSize(new Dimension(150,25));
+                updateItemCountOnOrder.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        int newOnOrderCount = Integer.parseInt(JOptionPane.showInputDialog("What how many items are on order for " + selectedItem.getItemName() + "?"));
+                        selectedItem.setCountOnOrder(newOnOrderCount);
+                        updateSelectedItem();
                     }
                 });
 
                 layoutAdjInvComponents();
+            }
+
+            private void updateSelectedItem(){
+                try {
+                    Inventory.updateItemInFile(selectedItem);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    inventoryTablePanel.refresh();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
 
             private void layoutAdjInvComponents() {
@@ -725,20 +829,38 @@ public class MainFrame extends JFrame {
                 setLayout(new GridBagLayout());
                 GridBagConstraints gc = new GridBagConstraints();
 
+
                 gc.weightx = 1;
                 gc.weighty = .02;
                 gc.gridy = 0;
 
                 ////// First Row ///////
-                gc.gridy ++;
+                gc.gridy = 1;
 
-                gc.gridx = 1;
+                gc.gridx = 0;
                 gc.anchor = GridBagConstraints.CENTER;
                 add(addNewItemBtn, gc);
 
-                gc.gridy ++;
-                gc.anchor = GridBagConstraints.CENTER;
+                gc.gridy = 2;
+                add(instructionLabel, gc);
+
+                gc.gridy = 3;
+                add(updateItemNameBtn, gc);
+
+                gc.gridy = 4;
+                add(updateItemPriceBtn, gc);
+
+                gc.gridy = 5;
                 add(updateItemInventoryBtn, gc);
+
+                gc.gridy = 6;
+                add(updateItemThresholdBtn, gc);
+
+                gc.gridy = 7;
+                add(updateItemSupplierBtn, gc);
+
+                gc.gridy = 8;
+                add(updateItemCountOnOrder, gc);
 
             }
         }
@@ -751,6 +873,7 @@ public class MainFrame extends JFrame {
             NewItemDialog() throws FileNotFoundException {
                 setTitle("New Item");
                 setSize(500,500);
+                setResizable(false);
                 setLocationRelativeTo(null);
                 setVisible(true);
 
@@ -891,6 +1014,19 @@ public class MainFrame extends JFrame {
                     gc.gridx = 0;
                     gc.anchor = GridBagConstraints.FIRST_LINE_END;
                     gc.insets = new Insets(0,0,0,5);
+                    add(priceLabel, gc);
+
+                    gc.gridx = 1;
+                    gc.insets = new Insets(0,0,0,0);
+                    gc.anchor = GridBagConstraints.FIRST_LINE_START;
+                    add(priceField, gc);
+
+                    /////// Forth Row //////////
+
+                    gc.gridy ++;
+                    gc.gridx = 0;
+                    gc.anchor = GridBagConstraints.FIRST_LINE_END;
+                    gc.insets = new Insets(0,0,0,5);
                     add(countOnHandLabel, gc);
 
                     gc.gridx = 1;
@@ -898,7 +1034,7 @@ public class MainFrame extends JFrame {
                     gc.anchor = GridBagConstraints.FIRST_LINE_START;
                     add(countOnHandField, gc);
 
-                    /////// Forth Row //////////
+                    /////// Fifth Row //////////
 
                     gc.gridy ++;
                     gc.gridx = 0;
@@ -911,33 +1047,7 @@ public class MainFrame extends JFrame {
                     gc.anchor = GridBagConstraints.FIRST_LINE_START;
                     add(thresholdField, gc);
 
-                    /////// Fifth Row //////////
-
-                    gc.gridy ++;
-                    gc.gridx = 0;
-                    gc.anchor = GridBagConstraints.FIRST_LINE_END;
-                    gc.insets = new Insets(0,0,0,5);
-                    add(countOnOrderLabel, gc);
-
-                    gc.gridx = 1;
-                    gc.insets = new Insets(0,0,0,0);
-                    gc.anchor = GridBagConstraints.FIRST_LINE_START;
-                    add(countonOrderField, gc);
-
                     /////// Sixth Row //////////
-
-                    gc.gridy ++;
-                    gc.gridx = 0;
-                    gc.anchor = GridBagConstraints.FIRST_LINE_END;
-                    gc.insets = new Insets(0,0,0,5);
-                    add(priceLabel, gc);
-
-                    gc.gridx = 1;
-                    gc.insets = new Insets(0,0,0,0);
-                    gc.anchor = GridBagConstraints.FIRST_LINE_START;
-                    add(priceField, gc);
-
-                    /////// Seventh Row //////////
 
                     gc.gridy ++;
                     gc.gridx = 0;
@@ -949,6 +1059,19 @@ public class MainFrame extends JFrame {
                     gc.insets = new Insets(0,0,0,0);
                     gc.anchor = GridBagConstraints.FIRST_LINE_START;
                     add(supplierField, gc);
+
+                    /////// Seventh Row //////////
+
+                    gc.gridy ++;
+                    gc.gridx = 0;
+                    gc.anchor = GridBagConstraints.FIRST_LINE_END;
+                    gc.insets = new Insets(0,0,0,5);
+                    add(countOnOrderLabel, gc);
+
+                    gc.gridx = 1;
+                    gc.insets = new Insets(0,0,0,0);
+                    gc.anchor = GridBagConstraints.FIRST_LINE_START;
+                    add(countonOrderField, gc);
 
                     //// Eighth Row //////
                     gc.gridy ++;
@@ -972,6 +1095,7 @@ public class MainFrame extends JFrame {
         public UserDialog() throws FileNotFoundException {
 
             setTitle("User Maintenance");
+            setResizable(false);
             add(userTable, BorderLayout.WEST);
             add(adjUserPanel, BorderLayout.EAST);
 
@@ -1089,6 +1213,7 @@ public class MainFrame extends JFrame {
 
             NewUserDialog() throws FileNotFoundException {
                 setTitle("New User");
+                setResizable(false);
                 setSize(500, 500);
                 setLocationRelativeTo(null);
                 setVisible(true);
@@ -1155,7 +1280,7 @@ public class MainFrame extends JFrame {
                     saveBtn.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent actionEvent) {
                             String defaultPassword = "password1";
-                            String defaultStatus = "Active";
+                            boolean defaultStatus = true;
                             User user = new User(Integer.parseInt(empIDField.getText()), firstNameField.getText(), lastNameField.getText(), positionField.getText(), usernameField.getText(), defaultPassword, defaultStatus);
                             String userString = user.toString();
                             users.add(user);
@@ -1270,6 +1395,7 @@ public class MainFrame extends JFrame {
 
             public ChangePwdDialog() throws FileNotFoundException {
                 setTitle("Change Password");
+                setResizable(false);
                 setSize(500, 300);
 
                 setLocationRelativeTo(null);
@@ -1317,7 +1443,7 @@ public class MainFrame extends JFrame {
 
                     submitBtn.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent actionEvent) {
-                            User user = new User(0, null, null, null, usernameField.getText(), String.valueOf(oldPwdField.getPassword()), null);
+                            User user = new User(0, null, null, null, usernameField.getText(), String.valueOf(oldPwdField.getPassword()), false);
                             String newPwd;
                             boolean authstatus = false;
                             for (User User : users) {
@@ -1429,11 +1555,17 @@ public class MainFrame extends JFrame {
         ReturnsTextPanel returnsTextPanel;
         ReturnsBtnPanel returnsBtnPanel;
         long recalledSaleID;
+        boolean transactionStarted = false;
 
         private Hashtable<String, Integer> returnedItems = new Hashtable<>();
 
         public ReturnsDialog(){
+
+            setTitle("Returns Dialog");
+            setResizable(false);
             setLayout(new BorderLayout());
+
+            setResizable(false);
 
             returnsTextPanel = new ReturnsTextPanel();
             returnsBtnPanel = new ReturnsBtnPanel();
@@ -1498,6 +1630,7 @@ public class MainFrame extends JFrame {
                             }
                         }
                         if (saleFound){
+                            transactionStarted = true;
                             refreshLeftTextPane();
                             returnEntireTransactionBtn.setEnabled(true);
                             itemLabel.setEnabled(true);
@@ -1716,14 +1849,60 @@ public class MainFrame extends JFrame {
                     }
                 }
             }
-
         }
-
     }
 
     class ReportingDialog extends JDialog{
+        private ReportingOptionsPanel reportingOptionsPanel;
 
+        public ReportingDialog() throws FileNotFoundException {
+            setTitle("Reporting Dialog");
+            setResizable(false);
+            setLayout(new BorderLayout());
+            setLocationRelativeTo(null);
+
+            reportingOptionsPanel = new ReportingOptionsPanel();
+
+            add(reportingOptionsPanel, BorderLayout.CENTER);
+
+            setSize(new Dimension(500,500));
+        }
+
+        class ReportingOptionsPanel extends JPanel {
+            private JLabel userSelectLabel;
+            private JList<String> userSelect;
+            private JLabel firstDateSelectLabel;
+            private JTextField firstDateSelectField;
+            private JLabel lastDateSelecLabel;
+            private JTextField lastDateSelectField;
+
+            private JFileChooser fileDestChooser;
+
+            private JButton submitBtn;
+
+            private JButton invSubmitBtn;
+
+            public ReportingOptionsPanel() throws FileNotFoundException {
+                setLayout(new GridBagLayout());
+
+                UserList userList = new UserList();
+                ArrayList<User> users = userList.getUserList();
+                DefaultListModel dlm = new DefaultListModel();
+
+                userSelect = new JList<>();
+                dlm.addElement("All Users");
+                for(User user: users){
+                    dlm.addElement(user.username);
+                }
+                userSelect.setModel(dlm);
+
+                add(userSelect);
+
+                setSize(500,500);
+            }
+
+
+        }
     }
-
 }
 

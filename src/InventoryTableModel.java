@@ -9,7 +9,7 @@ public class InventoryTableModel extends AbstractTableModel {
 
     private List<Item> items = new ArrayList<>();
 
-    private String[] colNames = {"Item Name", "Item ID", "Price", "Count on hand", "Threshold", "Supplier", "On Order"};
+    private String[] colNames = {"Item Name", "Item ID", "Price", "On Hand", "Threshold", "Supplier", "On Order"};
     // String[] tableData;
 
     public InventoryTableModel() throws FileNotFoundException {

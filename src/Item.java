@@ -81,11 +81,13 @@ public class Item {
     @Override
     public String toString() {
         return "Item{" +
-                "itemID=" + itemID +
-                ", itemName='" + itemName + '\'' +
-                ", countOnHand=" + countOnHand +
-                ", countOnOrder=" + countOnOrder +
+                "itemName='" + itemName + '\'' +
+                ", itemID=" + itemID +
                 ", price= " + price +
+                ", countOnHand=" + countOnHand +
+                ", threshold=" + threshold +
+                ", supplier=" + supplier +
+                ", countOnOrder=" + countOnOrder +
                 '}';
     }
     public String toStringForSaving(){

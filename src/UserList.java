@@ -13,7 +13,7 @@ public class UserList {
             String row = sc.nextLine();
             Scanner rowParse = new Scanner(row);
             rowParse.useDelimiter(",");
-            users.add(new User(rowParse.nextInt(),rowParse.next(),rowParse.next(),rowParse.next(), rowParse.next(), rowParse.next(), rowParse.next()));
+            users.add(new User(rowParse.nextInt(),rowParse.next(),rowParse.next(),rowParse.next(), rowParse.next(), rowParse.next(), rowParse.nextBoolean()));
         }
     }
 

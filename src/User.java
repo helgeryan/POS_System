@@ -5,25 +5,15 @@ public class User {
     String position;
     String username;
     String password;
-    String status;
+    boolean status;
 
-    User(int EmpID, String FirstName, String LastName, String Position, String Username, String Password, String Status) {
+    User(int EmpID, String FirstName, String LastName, String Position, String Username, String Password, boolean Status) {
         this.empID = EmpID;
         this.firstName = FirstName;
         this.lastName = LastName;
         this.position = Position;
         this.username = Username;
         this.password = Password;
-        this.status = Status;
-    }
-
-    User(int EmpID, String FirstName, String LastName, String Position, String Username, String Status) {
-        this.empID = EmpID;
-        this.firstName = FirstName;
-        this.lastName = LastName;
-        this.position = Position;
-        this.username = Username;
-
         this.status = Status;
     }
 
@@ -75,11 +65,11 @@ public class User {
         this.password = password;
     }
 
-    public String getStatus() {
+    public boolean getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 

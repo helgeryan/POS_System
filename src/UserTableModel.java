@@ -22,7 +22,7 @@ public class UserTableModel extends AbstractTableModel {
             Scanner sc = new Scanner(String.valueOf(rowParse));
             sc.useDelimiter(",");
 
-            User userToAdd = new User(Integer.parseInt(sc.next()),sc.next(),sc.next(),sc.next(), sc.next(), sc.next(), sc.next());
+            User userToAdd = new User(Integer.parseInt(sc.next()),sc.next(),sc.next(),sc.next(), sc.next(), sc.next(), sc.nextBoolean());
             users.add(userToAdd);
         }
     }

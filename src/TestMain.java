@@ -5,7 +5,7 @@ public class TestMain {
 	public static void main(String[] args) throws FileNotFoundException {
 		// TODO Auto-generated method stub
 		POS_System p = new POS_System();
-		p.getRegisters().get(0).setCurrUser(new User(1, "Ryan", "Helgeson", "cashier", "user1", "password1"));
+		p.getRegisters().get(0).setCurrUser(new User(1, "Ryan", "Helgeson", "cashier", "user1", "password1", true));
 		p.getRegisters().get(0).newSale();
 		p.getRegisters().get(0).addItemToSale(new Item("Book",1, 5.99,3,5,"barnesandnobles", 0 ), 2);
 		p.getRegisters().get(0).addItemToSale(new Item("Book",1, 5.99,3,5,"barnesandnobles", 0 ), 2);

@@ -820,6 +820,41 @@ public class Inventory {
     }
 
 
+    public static void updateItemInFile(Item updatedItem) throws IOException {
+        String[] itemsArray = Inventory.getTableData();
+        ArrayList<Item> items = new ArrayList<>();
+
+        //After itemArray is created using getTableData(). existing file is deleted and recreated.
+        //Column headers are added to the file.
+        File currentFile = new File("src/inventory.txt");
+        currentFile.delete();
+        File newFile = new File("src/inventory.txt");
+        newFile.createNewFile();
+        FileWriter fw = new FileWriter(newFile);
+        fw.write("item,ID,price,inventory,threshold,supplier,onOrder/n");
+        fw.close();
+
+        //Iterates through the existing itemsArray and parses each string into a Item object, if item name matches the itemName passed in, then the
+        //count is updated.
+        //at the end of each iteration, that item is appended to inventory.txt using appendStrToFile()
+        for (int i = 0; i < itemsArray.length; i++){
+            String row = itemsArray[i];
+            row = row.replaceAll("\\r|\\n", "");
+            Scanner rowParser = new Scanner(row);
+            rowParser.useDelimiter(",");
+            items.add(new Item(rowParser.next(), Integer.parseInt(rowParser.next()),Double.parseDouble(rowParser.next()),Integer.parseInt(rowParser.next()), Integer.parseInt(rowParser.next()),rowParser.next(),Integer.parseInt(rowParser.next())));
+            if(items.get(i).getItemID()==updatedItem.getItemID()){
+                items.get(i).setItemName(updatedItem.getItemName());
+                items.get(i).setPrice(updatedItem.getPrice());
+                items.get(i).setCountOnHand(updatedItem.getCountOnHand());
+                items.get(i).setThreshold(updatedItem.getThreshold());
+                items.get(i).setSupplier(updatedItem.getSupplier());
+                items.get(i).setCountOnOrder(updatedItem.getCountOnOrder());
+            }
+            appendStrToFile(items.get(i).toStringForSaving());
+        }
+    }
+
     public static void updateItemCountInFile(String itemName, int newCount) throws IOException {
         String[] itemsArray = Inventory.getTableData();
         ArrayList<Item> items = new ArrayList<>();

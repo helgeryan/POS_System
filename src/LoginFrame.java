@@ -1,3 +1,5 @@
+import com.sun.tools.javac.Main;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -74,14 +76,14 @@ public class LoginFrame extends JFrame {
                     String password = String.valueOf(passwordField.getPassword());
                     boolean authStatus = false;
 
-                    User user = new User(0,null,null,null, username, password);
+                    User user = new User(0,null,null,null, username, password, false);
                     try {
                         authStatus = Authentication.Authenticate(pos_system, registerID, user);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
 
-                    if(authStatus == true){
+                    if(authStatus){
                         clearFields();
                         dispose();
                     }

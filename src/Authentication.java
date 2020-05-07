@@ -17,18 +17,11 @@ public class Authentication {
         users = userList.getUserList();
 
         for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getUsername().equals(user.getUsername()) && users.get(i).getPassword().equals(user.getPassword())){
+            if ((users.get(i).getUsername().equals(user.getUsername()) && users.get(i).getPassword().equals(user.getPassword()) )&& (users.get(i).getStatus())){
                 System.out.println("You have been authenticated");
                 register.setCurrUser(users.get(i));
-
-                //adding dummy sales to test transaction ID on the MainFrame GUI
                 register.setId(registerID);
-                register.newSale();
-                register.closeSale();
-                register.newSale();
-                register.closeSale();
-
-                //new MainFrame(pos_system, register);
+                new MainFrame(pos_system, register, user);
                 authStatus = true;
                 break;
             }
@@ -37,7 +30,7 @@ public class Authentication {
         if(authStatus == false){
             System.out.println("The credentials you entered are incorrect.");
         }
-        
+
         return authStatus;
     }
 }
