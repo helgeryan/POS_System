@@ -57,9 +57,9 @@ public class Reports  {
         pw.close();
     }
 
-    public void printInventoryBelowThreshold()
+    public void printInventoryBelowThreshold(String path)
     {
-        File ci = new File("InventoryBelowThreshold.txt");
+        File ci = new File(path);
         FileWriter fw = null;
         try {
             fw = new FileWriter(ci);
@@ -111,9 +111,9 @@ public class Reports  {
         pw.close();
     }
 
-    public void printCurrentInventory()
+    public void printCurrentInventory(String path)
     {
-        File ci = new File("Current Inventory");
+        File ci = new File(path);
         FileWriter fw = null;
         try {
             fw = new FileWriter(ci);

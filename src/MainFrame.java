@@ -1,5 +1,8 @@
+import javafx.stage.FileChooser;
+
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
@@ -161,7 +164,7 @@ public class MainFrame extends JFrame {
             invBtn = new JButton("Inventory");
             userBtn = new JButton("User Management");
             returnsBtn = new JButton("Returns");
-            reportingbtn = new JButton("Reporting");
+            reportingbtn = new JButton("Sales Reports");
             setLayout(new GridBagLayout());
 
             GridBagConstraints gc = new GridBagConstraints();
@@ -650,6 +653,7 @@ public class MainFrame extends JFrame {
 
         private InventoryTablePanel inventoryTablePanel;
         private AdjInvPanel adjInvPanel;
+        private BottomButtonPanel bottomButtonPanel;
         InventoryTableModel tableModel;
         private Item selectedItem;
 
@@ -658,12 +662,14 @@ public class MainFrame extends JFrame {
             setResizable(false);
             inventoryTablePanel = new InventoryTablePanel();
             adjInvPanel = new AdjInvPanel();
+            bottomButtonPanel = new BottomButtonPanel();
 
             setSize(new Dimension(800,500));
             setLocationRelativeTo(null);
 
             add(inventoryTablePanel, BorderLayout.WEST);
             add(adjInvPanel, BorderLayout.EAST);
+            add(bottomButtonPanel, BorderLayout.SOUTH);
         }
 
         class InventoryTablePanel extends  JPanel{
@@ -695,7 +701,7 @@ public class MainFrame extends JFrame {
 
                 add(new JScrollPane(table), BorderLayout.CENTER);
 
-                setPreferredSize(new Dimension(600,500));
+                setPreferredSize(new Dimension(600,750));
             }
 
             private void refresh() throws FileNotFoundException {
@@ -866,6 +872,73 @@ public class MainFrame extends JFrame {
             }
         }
 
+        class BottomButtonPanel extends JPanel {
+
+            private JButton printThresholdReportBtn;
+            private JButton printInventoryReportBtn;
+            private Reports reports = new Reports();
+            BottomButtonPanel(){
+                setLayout(new GridBagLayout());
+                GridBagConstraints gc = new GridBagConstraints();
+
+                printThresholdReportBtn = new JButton("Export Threshold Report");
+                printThresholdReportBtn.setPreferredSize(new Dimension(200, 30));
+                printThresholdReportBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        JFileChooser fileChooser = new JFileChooser();
+                        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Text File", "txt"));
+                        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                        if(fileChooser.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION){
+                            String path = fileChooser.getSelectedFile().getPath();
+                            if (!path.substring(path.length() - 4).equals(".txt")){
+                                path = path + ".txt";
+                            }
+                            reports.printInventoryBelowThreshold(path);
+                            JOptionPane.showMessageDialog(MainFrame.this, "Report Sucessfully exported to: " + path);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "You must select a filepath in order to print this report.");
+                        }
+                    }
+                });
+
+                printInventoryReportBtn = new JButton("Print Entire Inventory");
+                printInventoryReportBtn.setPreferredSize(new Dimension(200, 30));
+                printInventoryReportBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        JFileChooser fileChooser = new JFileChooser();
+                        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Text File", "txt"));
+                        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                        if(fileChooser.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION){
+                            String path = fileChooser.getSelectedFile().getPath();
+                            if (!path.substring(path.length() - 4).equals(".txt")){
+                                path = path + ".txt";
+                            }
+                            reports.printCurrentInventory(path);
+                            JOptionPane.showMessageDialog(MainFrame.this, "Report Sucessfully exported to: " + path);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "You must select a filepath in order to print this report.");
+                        }
+                    }
+                });
+
+
+                setSize(600, 200);
+                setVisible(true);
+
+                gc.gridy = 0;
+                gc.gridx = 1;
+                gc.insets = new Insets(10,5,10,5);
+                gc.anchor = GridBagConstraints.CENTER;
+                add(printInventoryReportBtn, gc);
+
+                gc.gridx = 2;
+                add(printThresholdReportBtn, gc);
+
+            }
+
+        }
 
         class NewItemDialog extends JDialog{
 
@@ -899,9 +972,6 @@ public class MainFrame extends JFrame {
                 private JLabel itemNameLabel;
                 private JTextField itemNameField;
 
-                private JLabel descLabel;
-                private JTextField descField;
-
                 private JLabel countOnHandLabel;
                 private JTextField countOnHandField;
 
@@ -930,9 +1000,6 @@ public class MainFrame extends JFrame {
 
                     itemNameLabel = new JLabel("Item Name: ");
                     itemNameField = new JTextField(20);
-
-                    descLabel = new JLabel("Item Description: ");
-                    descField = new JTextField(20);
 
                     countOnHandLabel = new JLabel("Count on Hand: ");
                     countOnHandField = new JTextField(20);
@@ -1085,6 +1152,9 @@ public class MainFrame extends JFrame {
                 }
             }
         }
+
+
+
     }
     class UserDialog extends JDialog {
 
@@ -1179,21 +1249,14 @@ public class MainFrame extends JFrame {
                         try {
                             UserList userList = new UserList();
                             ArrayList<User> users = userList.getUserList();
-                            if(!users.get(selectedRow).getUsername().equals(register.getCurrUser().getUsername())){
-                                if(users.get(selectedRow).getStatus()){
-                                    users.get(selectedRow).setStatus(false);
-                                }
-                                else{
-                                    users.get(selectedRow).setStatus(true);
-                                }
-                                userList.saveUsersFile();
-                                userTable.refresh();
+                            if(users.get(selectedRow).getStatus()){
+                                users.get(selectedRow).setStatus(false);
                             }
-                            //This ensure that there will always be one active account on the system.
                             else{
-                                JOptionPane.showMessageDialog(MainFrame.this, "You can not disable your own account.");
+                                users.get(selectedRow).setStatus(true);
                             }
-
+                            userList.saveUsersFile();
+                            userTable.refresh();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -1900,16 +1963,17 @@ public class MainFrame extends JFrame {
         class ReportingOptionsPanel extends JPanel {
             private JLabel userSelectLabel;
             private JList<String> userSelect;
-            private JLabel firstDateSelectLabel;
+            private JLabel firstDateTimeSelectLabel;
             private JTextField firstDateSelectField;
-            private JLabel lastDateSelecLabel;
+            private JTextField firstTimeSelectField;
+            private JLabel lastDateTimeSelectLabel;
             private JTextField lastDateSelectField;
+            private JTextField lastTimeSelectField;
 
             private JFileChooser fileDestChooser;
 
             private JButton submitBtn;
 
-            private JButton invSubmitBtn;
 
             public ReportingOptionsPanel() throws FileNotFoundException {
                 setLayout(new GridBagLayout());
@@ -1925,9 +1989,70 @@ public class MainFrame extends JFrame {
                 }
                 userSelect.setModel(dlm);
 
-                add(userSelect);
+                firstDateTimeSelectLabel = new JLabel("Beginning Date/Time");
+                firstDateSelectField = new JTextField(10);
+                firstDateSelectField.setText("DD/MM/YYYY");
+                firstTimeSelectField = new JTextField(10);
+                firstTimeSelectField.setText("HH:MM AM/PM");
+
+                lastDateTimeSelectLabel = new JLabel("Ending Date/Time");
+                lastDateSelectField = new JTextField(10);
+                lastDateSelectField.setText("DD/MM/YYYY");
+                lastTimeSelectField = new JTextField(10);
+                lastTimeSelectField.setText("HH:MM AM/PM");
+
+                submitBtn = new JButton("Export Report");
+
+                setReportLayout();
 
                 setSize(500,500);
+            }
+
+            private void setReportLayout(){
+                GridBagConstraints gc = new GridBagConstraints();
+
+
+                gc.gridy = 0;
+                gc.gridheight = 3;
+                gc.gridx = 0;
+                gc.insets = new Insets(5,5,5,5);
+                gc.anchor = GridBagConstraints.LINE_START;
+                add(userSelect, gc);
+
+                gc.gridx = 1;
+                gc.gridheight = 1;
+                gc.anchor = GridBagConstraints.CENTER;
+                add(firstDateTimeSelectLabel, gc);
+
+                gc.gridy = 1;
+                gc.gridx = 1;
+                gc.anchor = GridBagConstraints.CENTER;
+                add(firstDateSelectField, gc);
+
+                gc.gridx = 1;
+                gc.gridy = 2;
+                add(firstTimeSelectField, gc);
+
+                gc.gridx = 2;
+                gc.gridy = 0;
+                gc.gridheight = 1;
+                gc.anchor = GridBagConstraints.CENTER;
+                add(lastDateTimeSelectLabel, gc);
+
+                gc.gridx = 2;
+                gc.gridy = 1;
+                gc.anchor = GridBagConstraints.CENTER;
+                add(lastDateSelectField, gc);
+
+                gc.gridx = 2;
+                gc.gridy = 2;
+                add(lastTimeSelectField, gc);
+
+                gc.gridy = 4;
+                gc.gridx = 0;
+                gc.gridwidth = 3;
+                gc.anchor = GridBagConstraints.CENTER;
+                add(submitBtn, gc);
             }
 
 

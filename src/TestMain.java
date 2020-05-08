@@ -32,8 +32,8 @@ public class TestMain {
 		//System.out.println(p.getRegisters().get(0).getSale(2));
 
 		Reports r = new Reports();
-		r.printInventoryBelowThreshold();
-		r.printCurrentInventory();
+		//r.printInventoryBelowThreshold();
+		//r.printCurrentInventory();
 		//System.out.println();
 
 		//r.printSales(p.getRegisters().get(0).getSales());
