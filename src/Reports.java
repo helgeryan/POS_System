@@ -48,7 +48,7 @@ public class Reports  {
 		pw.println("");
 		
 		
-		for (int i = 0; i<reg.getSales().size(); i++)
+		for (long i = 0; i<reg.getSales().size(); i++)
 		{
 			pw.printf(format, reg.getSale(i));
 			
