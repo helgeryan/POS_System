@@ -7,7 +7,7 @@ public class POS_System {
 	private List<User> users;
 	private String companyName;
 	private Inventory inventory;
-	
+
 	public POS_System () throws FileNotFoundException {
 		registers = new ArrayList<Register>();
 		registers.add(new Register());
@@ -15,7 +15,7 @@ public class POS_System {
 		companyName = "Group2 Point of Sale System";
 		inventory = new Inventory();
 	}
-	
+
 	public List<Register> getRegisters() {
 		return registers;
 	}
@@ -40,4 +40,5 @@ public class POS_System {
 	public void setInventory(Inventory inventory) {
 		this.inventory = inventory;
 	}
+
 }

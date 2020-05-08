@@ -23,7 +23,7 @@ public class UserList {
         }
     }
 
-    public void saveUsersFile(User user) throws IOException {
+    public void saveUsersFile() throws IOException {
         PrintWriter writer = new PrintWriter(new FileWriter("src/users.txt"));
         for(int i = 0; i < users.size(); i ++){
             String stringtoWrite = users.get(i).toString();

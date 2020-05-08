@@ -21,7 +21,7 @@ public class Authentication {
                 System.out.println("You have been authenticated");
                 register.setCurrUser(users.get(i));
                 register.setId(registerID);
-                new MainFrame(pos_system, register, user);
+                new MainFrame(pos_system, register);
                 authStatus = true;
                 break;
             }

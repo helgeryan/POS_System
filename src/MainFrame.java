@@ -1,5 +1,3 @@
-import javafx.scene.control.DatePicker;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -18,10 +16,9 @@ public class MainFrame extends JFrame {
     private RegisterInfoPanel registerInfoPanel;
     private Register register;
     private SalesPanel salesPanel;
-    private User currUser;
     private String transactionType = "Inactive";
 
-    public MainFrame(POS_System POS_System, Register Register, User CurrUser) throws FileNotFoundException {
+    public MainFrame(POS_System POS_System, Register Register) throws FileNotFoundException {
         super("Point of Sale System");
         setResizable(false);
         pos_system = new POS_System();
@@ -29,9 +26,6 @@ public class MainFrame extends JFrame {
 
         register = new Register();
         register = Register;
-
-        currUser = CurrUser;
-        register.setCurrUser(currUser);
 
         salesPanel = new SalesPanel();
 
@@ -197,11 +191,18 @@ public class MainFrame extends JFrame {
 
             userBtn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
-                    try {
-                        UserDialog userDialog = new UserDialog();
-                        userDialog.setVisible(true);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                    String userPosition = register.getCurrUser().getPosition();
+
+                    if(userPosition.equals("manager")){
+                        try {
+                            UserDialog userDialog = new UserDialog();
+                            userDialog.setVisible(true);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(MainFrame.this, "You do not have access to view that page.", "Access Denied", JOptionPane.WARNING_MESSAGE);
                     }
                 }
             });
@@ -1091,7 +1092,7 @@ public class MainFrame extends JFrame {
         private AdjUserPanel adjUserPanel = new AdjUserPanel();
         private JTable table;
         private UserTableModel userTableModel;
-
+        private int selectedRow;
         public UserDialog() throws FileNotFoundException {
 
             setTitle("User Maintenance");
@@ -1110,6 +1111,12 @@ public class MainFrame extends JFrame {
                 userTableModel = new UserTableModel();
                 table = new JTable(userTableModel);
 
+                table.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        selectedRow = table.rowAtPoint(e.getPoint());
+                    }
+                });
+
                 Dimension dim = getPreferredSize();
                 dim.width = 500;
                 dim.height = 500;
@@ -1126,7 +1133,8 @@ public class MainFrame extends JFrame {
         class AdjUserPanel extends JPanel {
 
             private JButton changePWBtn;
-            private JButton deleteUserBtn;
+            private JButton resetPwdBtn;
+            private JButton disableUserBtn;
             private JButton newUserBtn;
 
             public AdjUserPanel() {
@@ -1138,8 +1146,8 @@ public class MainFrame extends JFrame {
 
                 changePWBtn = new JButton("Change Password");
                 changePWBtn.setPreferredSize(new Dimension(150,25));
-                deleteUserBtn = new JButton("Delete User");
-                deleteUserBtn.setPreferredSize(new Dimension(150,25));
+                disableUserBtn = new JButton("Disable User");
+                disableUserBtn.setPreferredSize(new Dimension(150,25));
                 newUserBtn = new JButton("Create New User");
                 newUserBtn.setPreferredSize(new Dimension(150,25));
 
@@ -1164,10 +1172,31 @@ public class MainFrame extends JFrame {
                     }
                 });
 
-                deleteUserBtn.addActionListener(new ActionListener() {
+                disableUserBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         //This code will take the user that is selected in the table and remove them them from
                         //the user arraylist; then saveUsersFile()
+                        try {
+                            UserList userList = new UserList();
+                            ArrayList<User> users = userList.getUserList();
+                            if(!users.get(selectedRow).getUsername().equals(register.getCurrUser().getUsername())){
+                                if(users.get(selectedRow).getStatus()){
+                                    users.get(selectedRow).setStatus(false);
+                                }
+                                else{
+                                    users.get(selectedRow).setStatus(true);
+                                }
+                                userList.saveUsersFile();
+                                userTable.refresh();
+                            }
+                            //This ensure that there will always be one active account on the system.
+                            else{
+                                JOptionPane.showMessageDialog(MainFrame.this, "You can not disable your own account.");
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
                 layoutAdjUserComponents();
@@ -1194,7 +1223,7 @@ public class MainFrame extends JFrame {
                 gc.gridy = 1;
                 gc.gridx = 1;
                 gc.anchor = GridBagConstraints.LINE_START;
-                add(deleteUserBtn, gc);
+                add(disableUserBtn, gc);
 
                 ////// Third Row ///////
 
@@ -1281,11 +1310,11 @@ public class MainFrame extends JFrame {
                         public void actionPerformed(ActionEvent actionEvent) {
                             String defaultPassword = "password1";
                             boolean defaultStatus = true;
-                            User user = new User(Integer.parseInt(empIDField.getText()), firstNameField.getText(), lastNameField.getText(), positionField.getText(), usernameField.getText(), defaultPassword, defaultStatus);
+                            User user = new User(Integer.parseInt(empIDField.getText()), firstNameField.getText().toLowerCase(), lastNameField.getText().toLowerCase(), positionField.getText().toLowerCase(), usernameField.getText(), defaultPassword, defaultStatus);
                             String userString = user.toString();
                             users.add(user);
                             try {
-                                userList.saveUsersFile(user);
+                                userList.saveUsersFile();
                                 System.out.println(users);
                                 dispose();
                                 userTable.refresh();
@@ -1453,7 +1482,7 @@ public class MainFrame extends JFrame {
                                         newPwd = String.valueOf(newPwdField.getPassword());
                                         User.setPassword(newPwd);
                                         try {
-                                            userList.saveUsersFile(user);
+                                            userList.saveUsersFile();
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }

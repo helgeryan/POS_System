@@ -77,62 +77,6 @@ public class Inventory {
         return recordsArray;
     }
 
-    //returns a list of the items data
-	public static List<String> getItemInfo(String item) {
-		String fileName = "src/inventory.txt";
-		ArrayList<String> records = new ArrayList<String>(); //will be able to change size
-		
-		boolean found = false;
-		String name = ""; 
-		String ID = "";
-		String price = ""; 
-		String inventory = "";
-		String threshold = "";
-		String supplier = "";
-		String onOrder = "";
-		String record = "";
-		
-		try {
-			x = new Scanner(new File(fileName));
-			x.useDelimiter("[,\n]");
-		
-			while(x.hasNext()){
-				name = x.next();
-				if(name.contentEquals(item)) {
-					ID = x.next();
-					price = x.next();
-					inventory = x.next();
-					threshold = x.next();
-					supplier = x.next();
-					onOrder = x.next();
-					record = name + "," + ID + "," + price + "," + inventory + "," + threshold + "," + supplier + "," + onOrder;
-					records.add(record);
-					found = true;
-					x.close();
-					break;
-				}
-				else {
-				}
-			}
-			if(!found) {
-				System.out.println("NOT FOUND");
-				x.close();
-			}
-			
-		}
-		catch(Exception e) {
-			System.out.println("ERROR");
-			x.close();
-		}
-	
-		String[] recordsArray = new String[records.size()];
-		records.toArray(recordsArray);
-		List<String> list = Arrays.asList(recordsArray[0].split(","));
-		
-		return list;
-		
-	}
-  
     //edit all info for item
     public static void editRecord( String editItem, String newItem, String newID, Double newPriceD, int newInventoryI, int newThresholdI,  String newSupplier, int newOnOrderI) {
         String fileName = "src/inventory.txt";//real file
