@@ -79,13 +79,7 @@ public class Reports  {
         PrintWriter pw = new PrintWriter (fw);
 
 
-       // String format = "%-25s";
-
-        //pw.println("Sales Report as of: "+Calendar.getInstance().getTime());
-       // pw.println("");
-        //pw.println("");
-
-        
+              
         for(int i = 0;i<pos.getRegisters().size();i++)
         {
         	String regDate = dateFormat.format(pos.getRegisters().get(i).getDate());//formats the register date
@@ -174,6 +168,74 @@ public class Reports  {
 	
 	
 	
+	
+		public void printSalesForUser(POS_System p, String username) throws FileNotFoundException //this prints all sales across all registers for a specific user
+	, ParseException
+	    {
+			List<Sale> list = new ArrayList<Sale>();
+			
+	        POS_System pos = new POS_System();
+	        
+	        DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");  
+			
+			String cashier = username;
+	      
+	        pos = p;       
+			
+			File ci = new File("SalesReport2.txt");
+	        FileWriter fw = null;
+	        try {
+	            fw = new FileWriter(ci);
+	        } catch (IOException e1) {
+	            // TODO Auto-generated catch block
+	            e1.printStackTrace();
+	        }
+	        try {
+	            fw = new FileWriter(ci, true);
+	        } catch (IOException e) {
+	            // TODO Auto-generated catch block
+	            e.printStackTrace();
+	        }
+	        PrintWriter pw = new PrintWriter (fw);
+
+
+	       // String format = "%-25s";
+
+	        //pw.println("Sales Report as of: "+Calendar.getInstance().getTime());
+	       // pw.println("");
+	        //pw.println("");
+
+	        
+	        for(int i = 0;i<pos.getRegisters().size();i++)
+	        {
+	        	String regDate = dateFormat.format(pos.getRegisters().get(i).getDate());//formats the register date
+	        	Date regDateForCompare = dateFormat.parse(regDate);//after formatting this turns the register date back into a date object for comparing
+	        	String user = pos.getRegisters().get(i).getCurrUser().getUsername();//turns register user into string
+	        	
+	        	
+	        	list = pos.getRegisters().get(i).getSales();//gets sales for the first register and put it in my array
+	        	
+	        	for(int c = 0; c < list.size(); c++)
+	        	{
+	        		Sale saleItem = list.get(c);//gets the sale item in the list
+	        			        		
+	        		String saleItemCashier = saleItem.getCashier();
+	        		int compareResult = saleItemCashier.compareTo(cashier);//compares username passed in (cashier) with saleItem cashier username
+	        		
+	        		
+	        		if(compareResult == 0 )//
+	        	{
+	        		
+	        		pw.println(saleItem.toString());
+	        	}
+	        	
+	        	}
+	        	
+	        }
+	        pw.println("");
+	        pw.close();
+	    }
+
 	
 	
 	
