@@ -1,8 +1,11 @@
 import java.io.FileNotFoundException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class TestMain {
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws FileNotFoundException, ParseException {
 		// TODO Auto-generated method stub
 		POS_System p = new POS_System();
 		p.getRegisters().get(0).setCurrUser(new User(1, "Ryan", "Helgeson", "cashier", "user1", "password1"));
@@ -20,8 +23,26 @@ public class TestMain {
 		p.getRegisters().get(0).addItemToSale(new Item("Book",1, 5.99,3,5,"barnesandnobles", 0 ), 3);
 		p.getRegisters().get(0).closeSale();
 		p.getRegisters().get(0).printSales();
-		//Return entire sale
-		p.getRegisters().get(0).returnEntireSale(1);
+		
+		
+		
+		
+		
+		p.getRegisters().get(0).addItemToSale(new Item("Tool",1, 5.99,3,5,"barnesandnobles", 0 ), 2);
+		p.getRegisters().get(0).addItemToSale(new Item("Thing",1, 5.99,3,5,"barnesandnobles", 0 ), 2);
+		p.getRegisters().get(0).addItemToSale(new Item("Book",1, 5.99,3,5,"barnesandnobles", 0 ), 2);
+		p.getRegisters().get(0).addItemToSale(new Item("Book",1, 5.99,3,5,"barnesandnobles", 0 ), 2);
+		p.getRegisters().get(0).closeSale();
+		
+		p.getRegisters().get(0).newSale();
+		p.getRegisters().get(0).addItemToSale(new Item("This",1, 5.99,3,5,"barnesandnobles", 0 ), 3);
+		p.getRegisters().get(0).addItemToSale(new Item("That",1, 5.99,3,5,"barnesandnobles", 0 ), 3);
+		p.getRegisters().get(0).addItemToSale(new Item("Book",1, 5.99,3,5,"barnesandnobles", 0 ), 3);
+		p.getRegisters().get(0).addItemToSale(new Item("Book",1, 5.99,3,5,"barnesandnobles", 0 ), 3);
+		p.getRegisters().get(0).closeSale();
+		p.getRegisters().get(0).printSales();
+		
+		
 		
 		//return a set of items
 		//p.getRegisters().get(0).returnSetofItems(2, 1,1,1,1,1,1);
@@ -37,7 +58,18 @@ public class TestMain {
 		System.out.println();
 		
 		
-		r.printSales();
+		
+		r.printSales(p);
+		
+		DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");  
+		String strDate = dateFormat.format(p.getRegisters().get(0).getDate());  
+		
+		System.out.println(strDate);
+		
+		
+		
+		
+	//	System.out.println(p.getRegisters().get(0).getDate());
 		
 		
 		
