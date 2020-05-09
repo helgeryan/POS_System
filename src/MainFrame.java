@@ -1,5 +1,3 @@
-import javafx.stage.FileChooser;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -8,6 +6,7 @@ import java.awt.event.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
@@ -15,21 +14,18 @@ import java.util.List;
 public class MainFrame extends JFrame {
 
     POS_System pos_system;
+    int registerIndex;
     private MainPanel mainPanel;
     private RegisterInfoPanel registerInfoPanel;
-    private Register register;
     private SalesPanel salesPanel;
     private String transactionType = "Inactive";
 
-    public MainFrame(POS_System POS_System, Register Register) throws FileNotFoundException {
+    public MainFrame(POS_System POS_System, int RegisterIndex) throws FileNotFoundException {
         super("Point of Sale System");
         setResizable(false);
         pos_system = new POS_System();
         pos_system = POS_System;
-
-        register = new Register();
-        register = Register;
-
+        registerIndex = RegisterIndex;
         salesPanel = new SalesPanel();
 
         setLayout(new BorderLayout());
@@ -56,6 +52,14 @@ public class MainFrame extends JFrame {
         List<Sale> sales = new ArrayList<>();
         long nextSalesID;
 
+
+        private JMenuBar menuBar = new JMenuBar();
+        private JMenu file = new JMenu("File");
+
+        private JMenuItem changePwdMenu = new JMenuItem("Change Password.");
+        private JMenuItem logoutMenu = new JMenuItem("Logout");
+        private JMenuItem exitMenu  = new JMenuItem("Exit");
+
         private JLabel registerIDLabel;
         private JLabel transIDLabel;
 
@@ -72,19 +76,19 @@ public class MainFrame extends JFrame {
 
         public RegisterInfoPanel(){
 
-            sales = register.getSales();
+            sales = pos_system.getRegisters().get(registerIndex).getSales();
 
             for(int i = 0; i < sales.size(); ++i){
                 nextSalesID = i;
             }
 
-            registerIDLabel = new JLabel(spaces + "Register ID:" + register.getId() + spaces );
+            registerIDLabel = new JLabel(spaces + "Register ID:" + pos_system.getRegisters().get(registerIndex).getId() + spaces );
             registerIDLabel.setBorder(blackline);
 
-            transIDLabel = new JLabel(spaces + "Transaction ID: " + register.getSaleId() + spaces);
+            transIDLabel = new JLabel(spaces + "Transaction ID: " + pos_system.getRegisters().get(registerIndex).getSaleId() + spaces);
             transIDLabel.setBorder(blackline);
 
-            cashierLabel = new JLabel(spaces + "Cashier: "+ register.getCurrUser().getUsername()+ spaces);
+            cashierLabel = new JLabel(spaces + "Cashier: "+ pos_system.getRegisters().get(registerIndex).getCurrUser().getUsername()+ spaces);
             cashierLabel.setBorder(blackline);
 
             dateLabel = new JLabel(spaces + date + spaces);
@@ -101,16 +105,13 @@ public class MainFrame extends JFrame {
         private void refreshRegisterInfoPanel(){
 
             if(transactionType.equals("Sale")){
-                transIDLabel.setText(spaces + "Transaction ID: " + register.getSaleId() + spaces);
-            }
-            else if(transactionType.equals("Return")){
-                transIDLabel.setText(spaces +"Transaction ID: " + salesPanel.salesBtnPanel.saleToBeRecalled + spaces);
+                transIDLabel.setText(spaces + "Transaction ID: " + pos_system.getRegisters().get(registerIndex).getSaleId() + spaces);
             }
             else{
                 transIDLabel.setText(spaces +"Transaction ID: Inactive"  + spaces);
             }
-            registerIDLabel.setText(spaces + "Register ID:" + register.getId() + spaces);
-            cashierLabel.setText(spaces + "Cashier: "+ register.getCurrUser().getUsername()+ spaces);
+            registerIDLabel.setText(spaces + "Register ID:" + pos_system.getRegisters().get(registerIndex).getId() + spaces);
+            cashierLabel.setText(spaces + "Cashier: "+ pos_system.getRegisters().get(registerIndex).getCurrUser().getUsername()+ spaces);
             dateLabel.setText(spaces + date + spaces);
             transactionTypeLabel.setText(spaces + transactionType + spaces);
         }
@@ -194,7 +195,7 @@ public class MainFrame extends JFrame {
 
             userBtn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
-                    String userPosition = register.getCurrUser().getPosition();
+                    String userPosition = pos_system.getRegisters().get(registerIndex).getCurrUser().getPosition();
 
                     if(userPosition.equals("manager")){
                         try {
@@ -357,14 +358,13 @@ public class MainFrame extends JFrame {
             private JTextField amountDueField;
             private double saleTotal;
             private double amountDue;
-            private long saleToBeRecalled;
 
 
             public SalesBtnPanel(){
                 newSaleBtn = new JButton("New Sale");
                 newSaleBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
-                        register.newSale();
+                        pos_system.getRegisters().get(registerIndex).newSale();
                         transactionType = "Sale";
                         toggleControls();
                         addItemBtn.setEnabled(true);
@@ -372,7 +372,7 @@ public class MainFrame extends JFrame {
                         qtyField.setEnabled(true);
                         registerInfoPanel.refreshRegisterInfoPanel();
                         salesTablePanel.clear();
-                        System.out.println(register.getSaleId());
+                        System.out.println(pos_system.getRegisters().get(registerIndex).getSaleId());
                         amountDue = 0;
                     }
                 });
@@ -394,7 +394,7 @@ public class MainFrame extends JFrame {
                         for(Item Item: items){
                             if(itemId == Item.getItemID()){
                                 item = Item;
-                                register.addItemToSale(item, qty);
+                                pos_system.getRegisters().get(registerIndex).addItemToSale(item, qty);
                                 tableModel.addItemToSaleTable(item, qty);
                                 salesTablePanel.refresh();
                                 refreshTotals();
@@ -411,11 +411,11 @@ public class MainFrame extends JFrame {
                 removeItemBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
 
-                        register.removeItemFromSale(selectedLineItem);
+                        pos_system.getRegisters().get(registerIndex).removeItemFromSale(selectedLineItem);
                         salesTablePanel.removeItemFromTable(selectedLineItem);
                         salesTablePanel.refresh();
-                        System.out.println(register.getCurrSale());
-                        register.setSalePrice(register.getCurrSale().getSalePrice());
+                        System.out.println(pos_system.getRegisters().get(registerIndex).getCurrSale());
+                        pos_system.getRegisters().get(registerIndex).setSalePrice(pos_system.getRegisters().get(registerIndex).getCurrSale().getSalePrice());
                         refreshTotals();
 
 
@@ -463,20 +463,21 @@ public class MainFrame extends JFrame {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    register.closeSale();
+                    pos_system.getRegisters().get(registerIndex).closeSale();
+                    //pos_system.getRegisters().set(pos_system.getRegisters().get(registerID).getId(), pos_system.getRegisters().get(registerID));
                     amountDue = 0;
-                    System.out.println(register.getSale(register.getSaleId()).toString());
+                    System.out.println(pos_system.getRegisters().get(registerIndex).getSale(pos_system.getRegisters().get(registerIndex).getSaleId()).toString());
                 }
                 else if(amountDue<0){
                     JOptionPane.showMessageDialog(MainFrame.this, "You owe the customer $" + Math.abs(amountDue) + " back in change.", "Change Due", JOptionPane.INFORMATION_MESSAGE);
-                    register.closeSale();
+                    pos_system.getRegisters().get(registerIndex).closeSale();
                     amountDue = 0;
                 }
                 else if(amountDue > 0){
                     JOptionPane.showMessageDialog(MainFrame.this, "Customer must pay remaining balance before closing the sale.", "Insufficient Payment", JOptionPane.ERROR_MESSAGE);
                 }
 
-                System.out.println(register.toString());
+                System.out.println(pos_system.getRegisters().get(registerIndex).toString());
                 salesTablePanel.clear();
                 totalField.setText(null);
                 amountDueField.setText(null);
@@ -488,7 +489,7 @@ public class MainFrame extends JFrame {
 
 
             private void adjustInventory() throws IOException {
-                List<Item> items = register.getCurrSale().getItems();
+                List<Item> items = pos_system.getRegisters().get(registerIndex).getCurrSale().getItems();
                 Hashtable<String, Integer> oItemHash = new Hashtable<>();
                 Enumeration itemNames;
 
@@ -523,7 +524,7 @@ public class MainFrame extends JFrame {
 
             private void refreshTotals(){
                 DecimalFormat df = new DecimalFormat("###.##");
-                saleTotal = Double.parseDouble(df.format(register.getSalePrice()));
+                saleTotal = Double.parseDouble(df.format(pos_system.getRegisters().get(registerIndex).getSalePrice()));
                 if(transactionType.equals("Sale")){
                     amountDue = saleTotal;
                 }
@@ -1216,7 +1217,7 @@ public class MainFrame extends JFrame {
 
                 changePWBtn = new JButton("Change Password");
                 changePWBtn.setPreferredSize(new Dimension(150,25));
-                disableUserBtn = new JButton("Disable User");
+                disableUserBtn = new JButton("Toggle Status");
                 disableUserBtn.setPreferredSize(new Dimension(150,25));
                 newUserBtn = new JButton("Create New User");
                 newUserBtn.setPreferredSize(new Dimension(150,25));
@@ -1246,20 +1247,26 @@ public class MainFrame extends JFrame {
                     public void actionPerformed(ActionEvent actionEvent) {
                         //This code will take the user that is selected in the table and remove them them from
                         //the user arraylist; then saveUsersFile()
-                        try {
-                            UserList userList = new UserList();
-                            ArrayList<User> users = userList.getUserList();
-                            if(users.get(selectedRow).getStatus()){
-                                users.get(selectedRow).setStatus(false);
+                        if(!userTableModel.getValueAt(selectedRow, 4).equals(pos_system.getRegisters().get(registerIndex).getCurrUser().getUsername())){
+                            try {
+                                UserList userList = new UserList();
+                                ArrayList<User> users = userList.getUserList();
+                                if(users.get(selectedRow).getStatus()){
+                                    users.get(selectedRow).setStatus(false);
+                                }
+                                else{
+                                    users.get(selectedRow).setStatus(true);
+                                }
+                                userList.saveUsersFile();
+                                userTable.refresh();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                            else{
-                                users.get(selectedRow).setStatus(true);
-                            }
-                            userList.saveUsersFile();
-                            userTable.refresh();
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "You can not toggle the status of your own account.");
+                        }
+
                     }
                 });
                 layoutAdjUserComponents();
@@ -1715,7 +1722,7 @@ public class MainFrame extends JFrame {
                     public void actionPerformed(ActionEvent actionEvent) {
                         boolean saleFound = false;
                         recalledSaleID = Long.parseLong(JOptionPane.showInputDialog(MainFrame.this, "What is the Sale ID of the transaction?", "Get Sale ID", JOptionPane.INFORMATION_MESSAGE));
-                        for(Sale sale: register.getSales()){
+                        for(Sale sale: pos_system.getRegisters().get(registerIndex).getSales()){
                             if(sale.getId() == recalledSaleID){
                                 saleFound = true;
                                 break;
@@ -1760,8 +1767,8 @@ public class MainFrame extends JFrame {
                 returnSingleItemBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         int lineItemNumber = Integer.parseInt(itemField.getText());
-                        String itemName = register.getSale(recalledSaleID).getItems().get(lineItemNumber).getItemName();
-                        double itemPrice = register.getSale(recalledSaleID).getItems().get(lineItemNumber).getPrice();
+                        String itemName = pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getItems().get(lineItemNumber).getItemName();
+                        double itemPrice = pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getItems().get(lineItemNumber).getPrice();
                         amountDueBack = amountDueBack + itemPrice;
                         DecimalFormat df = new DecimalFormat("##.##");
                         amountDueBack = Double.parseDouble(df.format(amountDueBack));
@@ -1775,8 +1782,8 @@ public class MainFrame extends JFrame {
                             returnedItems.put(itemName,1);
                         }
 
-                        register.returnSingleItem(recalledSaleID, lineItemNumber);
-                        register.makeReturnComment(recalledSaleID, itemName + ", -" + itemPrice);
+                        pos_system.getRegisters().get(registerIndex).returnSingleItem(recalledSaleID, lineItemNumber);
+                        pos_system.getRegisters().get(registerIndex).makeReturnComment(recalledSaleID, itemName + ", -" + itemPrice);
                         rightPaneMessage = rightPaneMessage + "Line Item " + lineItemNumber + ": " + itemName + ", -" + itemPrice + "\n";
                         returnsTextPanel.rightTextPane.setText(rightPaneMessage);
                         refreshLeftTextPane();
@@ -1887,7 +1894,7 @@ public class MainFrame extends JFrame {
             }
 
             private void returnAllItems(){
-                List<Item> returnedItemList = register.getSale(recalledSaleID).getItems();
+                List<Item> returnedItemList = pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getItems();
                 while(returnedItemList.size()>0){
                     amountDueBack = amountDueBack + returnedItemList.get(0).getPrice();
                     String itemName = returnedItemList.get(0).getItemName();
@@ -1899,8 +1906,8 @@ public class MainFrame extends JFrame {
                     else{
                         returnedItems.put(itemName,1);
                     }
-                    register.returnSingleItem(recalledSaleID, 0);
-                    register.makeReturnComment(recalledSaleID, itemName + ", -" + itemPrice);
+                    pos_system.getRegisters().get(registerIndex).returnSingleItem(recalledSaleID, 0);
+                    pos_system.getRegisters().get(registerIndex).makeReturnComment(recalledSaleID, itemName + ", -" + itemPrice);
                     returnAllItems();
                 }
                 amountDueBackField.setText("-" + amountDueBack);
@@ -1909,16 +1916,16 @@ public class MainFrame extends JFrame {
             private void refreshLeftTextPane(){
                 leftPaneHeader = leftPaneHeader + "Sale '" + recalledSaleID + "' Loaded Sucessfully.\n";
                 returnsTextPanel.leftTextPane.setText(leftPaneMessage);
-                leftPaneHeader = "Sale ID: " + register.getSale(recalledSaleID).getId() +
-                        "; Cashier: " + register.getSale(recalledSaleID).getCashier() +
-                        "; \nDate: " + register.getSale(recalledSaleID).getDate() + "\n";
+                leftPaneHeader = "Sale ID: " + pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getId() +
+                        "; Cashier: " + pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getCashier() +
+                        "; \nDate: " + pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getDate() + "\n";
                 itemList = getItemsInSale();
-                leftPaneMessage = leftPaneHeader + itemList + "\n" + register.getSale(recalledSaleID).getComment() + "\n";
+                leftPaneMessage = leftPaneHeader + itemList + "\n" + pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getComment() + "\n";
                 returnsTextPanel.leftTextPane.setText(leftPaneMessage);
             }
 
             private String getItemsInSale(){
-                List<Item> items = register.getSale(recalledSaleID).getItems();
+                List<Item> items = pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getItems();
                 String itemString = "";
                 for(int i = 0; i< items.size(); i++){
                     itemString = itemString + i + ") " + items.get(i).getItemName() + ", Price: " + items.get(i).getPrice() + "\n";
@@ -1965,12 +1972,6 @@ public class MainFrame extends JFrame {
             private JList<String> userSelect;
             private JLabel firstDateTimeSelectLabel;
             private JTextField firstDateSelectField;
-            private JTextField firstTimeSelectField;
-            private JLabel lastDateTimeSelectLabel;
-            private JTextField lastDateSelectField;
-            private JTextField lastTimeSelectField;
-
-            private JFileChooser fileDestChooser;
 
             private JButton submitBtn;
 
@@ -1978,30 +1979,93 @@ public class MainFrame extends JFrame {
             public ReportingOptionsPanel() throws FileNotFoundException {
                 setLayout(new GridBagLayout());
 
+
+                Reports reports = new Reports();
                 UserList userList = new UserList();
                 ArrayList<User> users = userList.getUserList();
                 DefaultListModel dlm = new DefaultListModel();
 
                 userSelect = new JList<>();
+
+                Border blackline = BorderFactory.createLineBorder(Color.black);
+                userSelect.setBorder(blackline);
                 dlm.addElement("All Users");
                 for(User user: users){
                     dlm.addElement(user.username);
                 }
                 userSelect.setModel(dlm);
+                userSelect.setSelectedIndex(0);
 
-                firstDateTimeSelectLabel = new JLabel("Beginning Date/Time");
+                firstDateTimeSelectLabel = new JLabel("Desired Date:");
                 firstDateSelectField = new JTextField(10);
-                firstDateSelectField.setText("DD/MM/YYYY");
-                firstTimeSelectField = new JTextField(10);
-                firstTimeSelectField.setText("HH:MM AM/PM");
-
-                lastDateTimeSelectLabel = new JLabel("Ending Date/Time");
-                lastDateSelectField = new JTextField(10);
-                lastDateSelectField.setText("DD/MM/YYYY");
-                lastTimeSelectField = new JTextField(10);
-                lastTimeSelectField.setText("HH:MM AM/PM");
+                firstDateSelectField.setText("MM-DD-YYYY");
 
                 submitBtn = new JButton("Export Report");
+
+                submitBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        JFileChooser fileChooser = new JFileChooser();
+                        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Text File", "txt"));
+                        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                        if(fileChooser.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION){
+                            String path = fileChooser.getSelectedFile().getPath();
+                            if (!path.substring(path.length() - 4).equals(".txt")){
+                                path = path + ".txt";
+                            }
+                            if((userSelect.getSelectedIndex() == 0) && firstDateSelectField.getText().equals("MM-DD-YYYY")){
+                                int result = JOptionPane.showConfirmDialog(MainFrame.this, "All available Sales records will be exported. Proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                                if(result == 0){
+                                    try {
+                                        reports.printSales(pos_system, path);
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                            else if((userSelect.getSelectedIndex() == 0) && !firstDateSelectField.getText().equals("MM-DD-YYYY")){
+                                int result = JOptionPane.showConfirmDialog(MainFrame.this, "Sales records for the all users on the selected date will be exported. Proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                                if (result == 0) {
+                                    String date = firstDateSelectField.getText();
+                                    try {
+                                        reports.printSales(pos_system, date, path);
+                                    } catch (FileNotFoundException | ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                            else if((userSelect.getSelectedIndex() != 0) && firstDateSelectField.getText().equals("MM-DD-YYYY")){
+                                int result = JOptionPane.showConfirmDialog(MainFrame.this, "All available Sales records will be exported. Proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                                if(result == 0){
+                                    List<String> users = userSelect.getSelectedValuesList();
+                                    try {
+                                        reports.printSalesForUser(pos_system, users, path);
+                                    } catch (FileNotFoundException | ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                            else if((userSelect.getSelectedIndex() != 0)) {
+                                int result = JOptionPane.showConfirmDialog(MainFrame.this, "Sales records for the selected users on the selected date will be exported. Proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                                if (result == 0) {
+                                    String date = firstDateSelectField.getText();
+                                    List<String> users = userSelect.getSelectedValuesList();
+                                    try {
+                                        reports.printSales(pos_system, date, users, path);
+                                    } catch (FileNotFoundException | ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                            JOptionPane.showMessageDialog(MainFrame.this, "Report Sucessfully exported to: " + path);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "You must select a filepath in order to print this report.");
+                        }
+
+
+                    }
+                });
 
                 setReportLayout();
 
@@ -2028,25 +2092,6 @@ public class MainFrame extends JFrame {
                 gc.gridx = 1;
                 gc.anchor = GridBagConstraints.CENTER;
                 add(firstDateSelectField, gc);
-
-                gc.gridx = 1;
-                gc.gridy = 2;
-                add(firstTimeSelectField, gc);
-
-                gc.gridx = 2;
-                gc.gridy = 0;
-                gc.gridheight = 1;
-                gc.anchor = GridBagConstraints.CENTER;
-                add(lastDateTimeSelectLabel, gc);
-
-                gc.gridx = 2;
-                gc.gridy = 1;
-                gc.anchor = GridBagConstraints.CENTER;
-                add(lastDateSelectField, gc);
-
-                gc.gridx = 2;
-                gc.gridy = 2;
-                add(lastTimeSelectField, gc);
 
                 gc.gridy = 4;
                 gc.gridx = 0;

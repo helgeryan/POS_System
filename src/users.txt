@@ -1,4 +1,5 @@
 1,Joe,Smith,cashier,user1,password1,true
-2,John,Adams,manager,user2,password3,true
+2,John,Adams,manager,user2,password1,true
 3,Jacob,Astar,Cashier,jastar,password1,true
 4,kevin,malone,cashier,kmalone,password1,true
+5,jimothy,halpert,cashier,jhalpert,password1,true

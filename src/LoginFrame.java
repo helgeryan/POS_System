@@ -18,12 +18,10 @@ public class LoginFrame extends JFrame {
         super("Point of Sale System");
         setLayout(new BorderLayout());
 
-        POS_System pos_system = new POS_System();
-        pos_system = POS_System;
-
         instructions = new JLabel("Enter your username and password to Login");
         loginPanel = new LoginPanel();
 
+        pos_system = POS_System;
 
 
         instructions.setHorizontalAlignment(JLabel.CENTER);

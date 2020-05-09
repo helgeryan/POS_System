@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,10 +9,19 @@ public class Sale {
 	private Date date;
 	private long id = 0;
 	private String cashier;
+	private int registerId;
 	private String comment = "Items returned from this transaction: ";
 
 	public String getCashier() {
 		return cashier;
+	}
+
+	public int getRegisterId() {
+		return registerId;
+	}
+
+	public void setRegisterId(int registerId) {
+		this.registerId = registerId;
 	}
 
 	public void setComments(String Comment){
@@ -47,33 +57,8 @@ public class Sale {
 		this.salePrice = salePrice;
 	}
 
-//	public void addItem(String name, int quantity) {
-//		String[] inventory = Inventory.getItem(name);
-//		String[] itemData = inventory[0].split(",");
-//		System.out.println(itemData[0]);
-//		Item item;
-//		int id;
-//		double price;
-//		int countOnHand;
-//		int threshold;
-//		String desc;
-//		int onOrder;
-//		for (int i = 0; i < quantity; ++i) {
-//			name= itemData[0];
-//			id = Integer.parseInt(itemData[1]);
-//			price = Double.parseDouble(itemData[2]);
-//			countOnHand = Integer.parseInt(itemData[3]);
-//			threshold = Integer.parseInt(itemData[4]);
-//			desc = itemData[5];
-//			onOrder = Integer.parseInt(itemData[6]);
-//			item = new Item(name,id, price, countOnHand, threshold, desc, onOrder);
-//			salePrice += item.getPrice();
-//			items.add(item);
-//		}
-//	}
-	
 	public void addItem(Item item, int quantity) {
-		for(int i = 0; i < quantity; ++i) {
+		for (int i = 0; i < quantity; ++i) {
 			salePrice += item.getPrice();
 			items.add(item);
 		}
@@ -87,17 +72,6 @@ public class Sale {
 		this.date = new Date();
 	}
 
-	public Item removeItem(long id) {
-		for(int i = 0; i < items.size(); ++i ) {
-			if(id == items.get(i).getItemID()) {
-				salePrice -= items.get(i).getPrice();
-				Item retVal = items.remove(i);
-				return retVal;
-			}
-		}
-		return null;
-	}
-	
 	public void removeItem(int LineItemId) {
 		salePrice -= items.get(LineItemId).getPrice();
 		items.remove(LineItemId);
@@ -124,6 +98,7 @@ public class Sale {
 	@Override
 	public String toString() {
 		String retString = "Sale at Date/Time " + date + "\n";
+		retString += "Register: " + registerId + "\n";
 		retString += "Sale ID: " + id + "\n";
 		retString += "Cashier: " + cashier + "\n";
 
@@ -131,7 +106,7 @@ public class Sale {
 			retString += item.getItemName() + " $" + item.getPrice() + "\n";
 		}
 		retString += "Total price: $" + (int)(this.getSalePrice()*100)/100.0 + "\n";
-		retString += comment;
+		retString += comment +"\n";
 		return retString ;
 	}
 
