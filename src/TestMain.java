@@ -26,7 +26,8 @@ public class TestMain {
 		
 		
 		
-		
+		p.getRegisters().get(0).setCurrUser(new User(1, "Ryan", "Helgeson", "cashier", "user2", "password2"));
+		p.getRegisters().get(0).newSale();
 		
 		p.getRegisters().get(0).addItemToSale(new Item("Tool",1, 5.99,3,5,"barnesandnobles", 0 ), 2);
 		p.getRegisters().get(0).addItemToSale(new Item("Thing",1, 5.99,3,5,"barnesandnobles", 0 ), 2);
@@ -59,18 +60,16 @@ public class TestMain {
 		
 		
 		
-		r.printSales(p);
-		
-		DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");  
-		String strDate = dateFormat.format(p.getRegisters().get(0).getDate());  
-		
-		System.out.println(strDate);
+		r.printSales(p,"05-09-2020");
 		
 		
 		
+	
 		
-	//	System.out.println(p.getRegisters().get(0).getDate());
 		
+		
+		
+				
 		
 		
 		
