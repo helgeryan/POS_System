@@ -17,12 +17,6 @@ public class UserList {
         }
     }
 
-    public void PrintUsers() {
-        for (int i = 0; i < users.size(); i++) {
-            System.out.println(users.get(i));
-        }
-    }
-
     public void saveUsersFile() throws IOException {
         PrintWriter writer = new PrintWriter(new FileWriter("src/users.txt"));
         for(int i = 0; i < users.size(); i ++){

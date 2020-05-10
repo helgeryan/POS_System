@@ -1,5 +1,4 @@
-1,Joe,Smith,cashier,user1,default1,false
-2,John,Adams,manager,user2,password1,true
-3,Jacob,Astar,manager,jastar,password1,true
-4,kevin,malone,cashier,kmalone,password1,true
-5,jimothy,halpert,cashier,jhalpert,password1,true
+1,Syed,Naqvi,manager,snaqvi,JavaRocks1,true
+2,John,Adams,manager,jadams,password1,true
+3,kevin,malone,cashier,kmalone,password1,true
+4,jimothy,halpert,cashier,jhalpert,password1,true

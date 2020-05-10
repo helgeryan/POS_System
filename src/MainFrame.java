@@ -47,7 +47,6 @@ public class MainFrame extends JFrame {
     class RegisterInfoPanel extends JPanel {
 
         LocalDate date = LocalDate.now();
-        //LocalTime time = LocalTime.now();
 
         List<Sale> sales = new ArrayList<>();
         long nextSalesID;
@@ -299,9 +298,6 @@ public class MainFrame extends JFrame {
         private TransactionTableModel tableModel;
         private int selectedRow;
         private int selectedLineItem;
-        private String selectedItemName;
-        private double selectedItemPrice;
-        private long selectedItemID;
 
         public SalesPanel(){
             salesBtnPanel = new SalesBtnPanel();
@@ -344,9 +340,6 @@ public class MainFrame extends JFrame {
                         selectedRow = table.rowAtPoint(e.getPoint());
                         System.out.println(selectedRow);
                         selectedLineItem = (int) tableModel.getValueAt(selectedRow, 0);
-                        selectedItemName = (String) tableModel.getValueAt(selectedRow, 2);
-                        selectedItemPrice = (double) tableModel.getValueAt(selectedRow, 3);
-                        selectedItemID = Long.parseLong(String.valueOf(tableModel.getValueAt(selectedRow, 1)));
                     }
                 });
 
@@ -360,18 +353,6 @@ public class MainFrame extends JFrame {
             }
             private void clear(){
                 tableModel.clearData();
-                refresh();
-            }
-
-            private void addItemsForReturn(Sale currSale){
-                tableModel.clearData();
-                tableModel.populateFromSale(currSale);
-                refresh();
-            }
-
-            private void populateTable(Sale currSale){
-                tableModel.clearData();
-                tableModel.populateFromSale(currSale);
                 refresh();
             }
 
@@ -513,7 +494,6 @@ public class MainFrame extends JFrame {
                         e.printStackTrace();
                     }
                     pos_system.getRegisters().get(registerIndex).closeSale();
-                    //pos_system.getRegisters().set(pos_system.getRegisters().get(registerID).getId(), pos_system.getRegisters().get(registerID));
                     amountDue = 0;
                     System.out.println(pos_system.getRegisters().get(registerIndex).getSale(pos_system.getRegisters().get(registerIndex).getSaleId()).toString());
                 }
@@ -693,8 +673,6 @@ public class MainFrame extends JFrame {
                 gc.gridy = 12;
                 gc.anchor = GridBagConstraints.LINE_START;
                 add(amountDueField, gc);
-
-
             }
         }
     }
@@ -1000,8 +978,6 @@ public class MainFrame extends JFrame {
                 setResizable(false);
                 setLocationRelativeTo(null);
                 setVisible(true);
-
-                //items = inventory.getInventoryList();
 
                 add(newItemPanel);
             }
@@ -2356,8 +2332,6 @@ public class MainFrame extends JFrame {
                 gc.anchor = GridBagConstraints.CENTER;
                 add(submitBtn, gc);
             }
-
-
         }
     }
 }

@@ -38,30 +38,12 @@ public class Register {
 		sales.add(currSale);
 	}
 
-	public void addItemsBackIn(long saleId, List<Item>items){
-		for(Sale sale: sales) {
-			if(sale.getId() == saleId) {
-				sale.setItems(items);
-			}
-		}
-	}
-
 	public void makeReturnComment(long saleId, String comment){
 		for(Sale sale: sales) {
 			if( sale.getId() == saleId) {
 				sale.setComments(comment);
 			}
 		}
-	}
-
-	public boolean returnEntireSale(long saleId) {
-		for(Sale sale: sales) {
-			if( sale.getId() == saleId) {
-				sales.remove(sale);
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public void removeItemFromSale(int itemID){
@@ -136,11 +118,6 @@ public class Register {
 		this.users = users;
 	}
 
-	public void printSales() {
-		for(Sale sale: sales) {
-			System.out.println(sale + "\n");
-		}
-	}
 
 	public List<Sale> getSales() {
 		return sales;

@@ -30,11 +30,6 @@ public class TransactionTableModel extends AbstractTableModel {
         itemsInSale.remove(LineItemID);
     }
 
-    public void populateFromSale(Sale currSale){
-        itemsInSale = currSale.getItems();
-    }
-
-
     @Override
     public int getRowCount() {
         return itemsInSale.size();

@@ -21,10 +21,6 @@ public class Item {
         return itemID;
     }
 
-    public void setItemID(int itemID) {
-        this.itemID = itemID;
-    }
-
     public String getItemName() {
         return itemName;
     }
@@ -72,10 +68,6 @@ public class Item {
 
     public void setSupplier(String supplier) {
         this.supplier = supplier;
-    }
-
-    public String saleToString() {
-        return "Item [itemName=" + itemName + ", price=" + price + "]";
     }
 
     @Override
