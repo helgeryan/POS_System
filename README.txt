@@ -1,7 +1,7 @@
 Group 2 Point of Sale System:
 Ryan Helgeson: Register and Sale Classes
-Bryan Deherty: Reporting class for Inventory and Sales.
-Brent Gallegher: Inventory Class
+Bryan Doherty: Reporting class for Inventory and Sales.
+Brent Gallagher: Inventory Class
 Jacob Astar: Authentication class and GUI Screens.
 
 To log into the point of sale system, use the following credentials(username and password is case sensitive):
