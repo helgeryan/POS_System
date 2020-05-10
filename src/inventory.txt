@@ -1,6 +1,6 @@
 item,ID,price,inventory,threshold,supplier,onOrder/n
 Clorox,1001,5.0,25,50,JnJ,0
-Milk,1002,2.75,26,25,Lakes,25
+Milk,1002,2.75,24,25,Lakes,25
 Beer,1003,9.0,28,30,AHB,45
 Apples,1004,1.25,55,50,FruitCo,100
 Oranges,1005,1.5,202,150,FruitCo,100
@@ -9,5 +9,5 @@ Water,1007,0.99,2,25,Watermans,45
 Paper,1008,5.0,200,20,DunderMifflin,25
 Wine,1009,12.0,193,50,Trader,25
 Crackers,1010,2.99,200,15,Ritz,10
-FishBait,1011,5.99,200,5,FishRUs,0
+FishBait,1011,5.99,201,5,FishRUs,0
 Cookies,1012,2.99,200,25,Tollhouse,50

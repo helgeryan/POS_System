@@ -56,7 +56,7 @@ public class MainFrame extends JFrame {
         private JMenuBar menuBar = new JMenuBar();
         private JMenu fileMenu = new JMenu("File");
 
-        private JMenuItem changePwdMenu = new JMenuItem("Change Password.");
+        private JMenuItem changePwdMenu = new JMenuItem("Change Password");
         private JMenuItem logoutMenu = new JMenuItem("Logout");
         private JMenuItem exitMenu  = new JMenuItem("Exit");
 
@@ -432,6 +432,7 @@ public class MainFrame extends JFrame {
                         int itemId = Integer.parseInt(addItemField.getText()) ;
                         int qty = Integer.parseInt(qtyField.getText());
                         Item item;
+                        boolean itemFound = false;
                         for(Item Item: items){
                             if(itemId == Item.getItemID()){
                                 item = Item;
@@ -441,7 +442,14 @@ public class MainFrame extends JFrame {
                                 refreshTotals();
                                 addItemField.setText(null);
                                 qtyField.setText(null);
+                                itemFound = true;
+                                break;
                             }
+                        }
+                        if(!itemFound){
+                            JOptionPane.showMessageDialog(MainFrame.this, "That item number was not found. Please try again.", "Item Not Found", JOptionPane.ERROR_MESSAGE);
+                            addItemField.setText(null);
+                            qtyField.setText(null);
                         }
 
                     }
@@ -1204,7 +1212,7 @@ public class MainFrame extends JFrame {
         private AdjUserPanel adjUserPanel = new AdjUserPanel();
         private JTable table;
         private UserTableModel userTableModel;
-        private int selectedRow;
+        private Integer selectedRow;
         public UserDialog() throws FileNotFoundException {
 
             setTitle("User Maintenance");
@@ -1244,82 +1252,237 @@ public class MainFrame extends JFrame {
 
         class AdjUserPanel extends JPanel {
 
-            private JButton resetPWBtn;
-            private JButton disableUserBtn;
             private JButton newUserBtn;
+            private JButton resetPWBtn;
+            private JTextArea instructionArea;
+            private JButton updateFirstNameBtn;
+            private JButton updateLastNameBtn;
+            private JButton updateUserNameBtn;
+            private JButton changePositionBtn;
+            private JButton disableUserBtn;
+            private UserList userList = new UserList();
 
-            public AdjUserPanel() {
+            public AdjUserPanel() throws FileNotFoundException {
                 Dimension dim = getPreferredSize();
                 dim.width = 200;
                 dim.height = 500;
 
                 setPreferredSize(dim);
 
-                resetPWBtn = new JButton("Reset Password");
-                resetPWBtn.setPreferredSize(new Dimension(150,25));
-                disableUserBtn = new JButton("Toggle Status");
-                disableUserBtn.setPreferredSize(new Dimension(150,25));
+                Dimension btnDim = new Dimension(150,25);
+
                 newUserBtn = new JButton("Create New User");
-                newUserBtn.setPreferredSize(new Dimension(150,25));
-
-                resetPWBtn.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        try {
-                            UserList userList = new UserList();
-                            int userID = (int) userTableModel.getValueAt(selectedRow, 0);
-                            for(int i = 0; i < userList.users.size(); i++){
-                                if(userList.users.get(i).getEmpID() == userID){
-                                    userList.users.get(i).setPassword("default1");
-                                    userList.saveUsersFile();
-                                    userTable.refresh();
-                                    JOptionPane.showMessageDialog(MainFrame.this, "Password has been reset.", "Password Change Confirmation", JOptionPane.INFORMATION_MESSAGE);
-                                    break;
-                                }
-                            }
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                });
-
+                newUserBtn.setPreferredSize(btnDim);
                 newUserBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         try {
                             NewUserDialog newUserDialog = new NewUserDialog();
-                            //dispose();
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
                     }
                 });
 
-                disableUserBtn.addActionListener(new ActionListener() {
+                instructionArea = new JTextArea("Select a user on table before\nclicking a button below.");
+                instructionArea.setPreferredSize(new Dimension(150, 35));
+                instructionArea.setEditable(false);
+                instructionArea.setFocusable(false);
+                instructionArea.setLineWrap(true);
+
+                resetPWBtn = new JButton("Reset Password");
+                resetPWBtn.setPreferredSize(btnDim);
+                resetPWBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
-                        //This code will take the user that is selected in the table and remove them them from
-                        //the user arraylist; then saveUsersFile()
-                        if(!userTableModel.getValueAt(selectedRow, 4).equals(pos_system.getRegisters().get(registerIndex).getCurrUser().getUsername())){
-                            try {
-                                UserList userList = new UserList();
-                                ArrayList<User> users = userList.getUserList();
-                                if(users.get(selectedRow).getStatus()){
-                                    users.get(selectedRow).setStatus(false);
+                        try {
+                            if(selectedRow != null){
+                                int userID = (int) userTableModel.getValueAt(selectedRow, 0);
+                                for(int i = 0; i < userList.users.size(); i++){
+                                    if(userList.users.get(i).getEmpID() == userID){
+                                        userList.users.get(i).setPassword("default1");
+                                        userList.saveUsersFile();
+                                        userTable.refresh();
+                                        JOptionPane.showMessageDialog(MainFrame.this, "Password has been reset.", "Password Change Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                                        selectedRow = null;
+                                        break;
+                                    }
                                 }
-                                else{
-                                    users.get(selectedRow).setStatus(true);
+                            }
+                            else{
+                                JOptionPane.showMessageDialog(MainFrame.this, "You must select a user from the table on the left.", "Password Change Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                updateFirstNameBtn = new JButton("Update First Name");
+                updateFirstNameBtn.setPreferredSize(btnDim);
+                updateFirstNameBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        if(selectedRow != null){
+                            int userID = (int) userTableModel.getValueAt(selectedRow, 0);
+                            for(int i = 0; i < userList.users.size(); i++){
+                                if (userList.users.get(i).getEmpID() == userID){
+                                    String newFirstName = JOptionPane.showInputDialog(MainFrame.this, "What is the new First Name of the user?", "Name Change Dialog", JOptionPane.QUESTION_MESSAGE);
+                                    if(!newFirstName.equals("")){
+                                        userList.users.get(i).setFirstName(newFirstName);
+                                        try {
+                                            userList.saveUsersFile();
+                                            userTable.refresh();
+                                            selectedRow = null;
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                        break;
+                                    }
+                                    else{
+                                        JOptionPane.showMessageDialog(MainFrame.this, "You must enter a value to make the change.", "User Change Error", JOptionPane.ERROR_MESSAGE);
+                                    }
                                 }
-                                userList.saveUsersFile();
-                                userTable.refresh();
-                            } catch (IOException e) {
-                                e.printStackTrace();
                             }
                         }
                         else{
-                            JOptionPane.showMessageDialog(MainFrame.this, "You can not toggle the status of your own account.");
+                            JOptionPane.showMessageDialog(MainFrame.this, "You must select a user from the table on the left.", "User Change Error", JOptionPane.ERROR_MESSAGE);
                         }
-
                     }
+                });
+
+                updateLastNameBtn = new JButton("Update Last Name");
+                updateLastNameBtn.setPreferredSize(btnDim);
+                updateLastNameBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        if(selectedRow != null){
+                            int userID = (int) userTableModel.getValueAt(selectedRow, 0);
+                            for(int i = 0; i < userList.users.size(); i++){
+                                if (userList.users.get(i).getEmpID() == userID){
+                                    String newLastName = JOptionPane.showInputDialog(MainFrame.this, "What is the new Last Name of the user?", "Name Change Dialog", JOptionPane.QUESTION_MESSAGE);
+                                    if(!newLastName.equals("")){
+                                        userList.users.get(i).setLastName(newLastName);
+                                        try {
+                                            userList.saveUsersFile();
+                                            userTable.refresh();
+                                            selectedRow = null;
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                        break;
+                                    }
+                                    else{
+                                        JOptionPane.showMessageDialog(MainFrame.this, "You must enter a value to make the change.", "User Change Error", JOptionPane.ERROR_MESSAGE);
+                                    }
+                                }
+                            }
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "You must select a user from the table on the left.", "User Change Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+
+                updateUserNameBtn = new JButton("Update Username");
+                updateUserNameBtn.setPreferredSize(btnDim);
+                updateUserNameBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        if(selectedRow != null){
+                            int userID = (int) userTableModel.getValueAt(selectedRow, 0);
+                            for(int i = 0; i < userList.users.size(); i++){
+                                if (userList.users.get(i).getEmpID() == userID){
+                                    String newUserName = JOptionPane.showInputDialog(MainFrame.this, "What is the new Username of the user?", "Name Change Dialog", JOptionPane.QUESTION_MESSAGE);
+                                    if(!newUserName.equals("")){
+                                        userList.users.get(i).setUsername(newUserName);
+                                        try {
+                                            userList.saveUsersFile();
+                                            userTable.refresh();
+                                            if(pos_system.getRegisters().get(registerIndex).getCurrUser().getEmpID() == userList.users.get(i).getEmpID()){
+                                                pos_system.getRegisters().get(registerIndex).setCurrUser(userList.users.get(i));
+                                                registerInfoPanel.refreshRegisterInfoPanel();
+                                            }
+                                            selectedRow = null;
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                        break;
+                                    }
+                                    else{
+                                        JOptionPane.showMessageDialog(MainFrame.this, "You must enter a value to make the change.", "User Change Error", JOptionPane.ERROR_MESSAGE);
+                                    }
+                                }
+                            }
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "You must select a user from the table on the left.", "User Change Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+
+                changePositionBtn = new JButton("Change Position");
+                changePositionBtn.setPreferredSize(btnDim);
+                changePositionBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        if(selectedRow != null){
+                            int userID = (int) userTableModel.getValueAt(selectedRow, 0);
+                            if (!userTableModel.getValueAt(selectedRow, 4).equals(pos_system.getRegisters().get(registerIndex).getCurrUser().getUsername())) {
+                                for (int i = 0; i < userList.users.size(); i++) {
+                                    if (userList.users.get(i).getEmpID() == userID) {
+                                        String newPosition = JOptionPane.showInputDialog(MainFrame.this, "What is the new position of the user?", "Name Change Dialog", JOptionPane.QUESTION_MESSAGE);
+                                        if (newPosition != null) {
+                                            userList.users.get(i).setPosition(newPosition.toLowerCase());
+                                            try {
+                                                userList.saveUsersFile();
+                                                userTable.refresh();
+                                                selectedRow = null;
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                            break;
+                                        } else {
+                                            JOptionPane.showMessageDialog(MainFrame.this, "You must enter a value to make the change.", "User Change Error", JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(MainFrame.this, "You can not change your own position.");
+                            }
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "You must select a user from the table on the left.", "User Change Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+
+                disableUserBtn = new JButton("Toggle Status");
+                disableUserBtn.setPreferredSize(btnDim);
+                disableUserBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        if (selectedRow != null) {
+                            if (!userTableModel.getValueAt(selectedRow, 4).equals(pos_system.getRegisters().get(registerIndex).getCurrUser().getUsername())) {
+                                try {
+                                    UserList userList = new UserList();
+                                    ArrayList<User> users = userList.getUserList();
+                                    if (users.get(selectedRow).getStatus()) {
+                                        users.get(selectedRow).setStatus(false);
+                                    } else {
+                                        users.get(selectedRow).setStatus(true);
+                                    }
+                                    userList.saveUsersFile();
+                                    userTable.refresh();
+                                    selectedRow = null;
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(MainFrame.this, "You can not toggle the status of your own account.");
+                            }
+
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(MainFrame.this, "You must select a user from the table on the left.", "User Change Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+
                 });
                 layoutAdjUserComponents();
 
@@ -1332,27 +1495,47 @@ public class MainFrame extends JFrame {
 
                 gc.weightx = 1;
                 gc.weighty = .03;
-                gc.gridy = 0;
+                gc.anchor = GridBagConstraints.CENTER;
 
-                ////// First Row ///////
+
                 gc.gridy = 0;
                 gc.gridx = 1;
-                gc.anchor = GridBagConstraints.LINE_START;
-                add(resetPWBtn, gc);
+                add(newUserBtn, gc);
 
-                ////// Second Row //////
 
                 gc.gridy = 1;
                 gc.gridx = 1;
-                gc.anchor = GridBagConstraints.LINE_START;
-                add(disableUserBtn, gc);
+                add(instructionArea, gc);
 
-                ////// Third Row ///////
 
                 gc.gridy = 2;
                 gc.gridx = 1;
-                gc.anchor = GridBagConstraints.LINE_START;
-                add(newUserBtn, gc);
+                add(resetPWBtn, gc);
+
+
+                gc.gridy = 3;
+                gc.gridx = 1;
+                add(updateFirstNameBtn, gc);
+
+
+                gc.gridy = 4;
+                gc.gridx = 1;
+                add(updateLastNameBtn, gc);
+
+
+                gc.gridy = 5;
+                gc.gridx = 1;
+                add(updateUserNameBtn, gc);
+
+
+                gc.gridy = 6;
+                gc.gridx = 1;
+                add(changePositionBtn, gc);
+
+
+                gc.gridy = 7;
+                gc.gridx = 1;
+                add(disableUserBtn, gc);
             }
         }
 
@@ -1432,16 +1615,13 @@ public class MainFrame extends JFrame {
                         public void actionPerformed(ActionEvent actionEvent) {
                             String defaultPassword = "password1";
                             boolean defaultStatus = true;
-                            User user = new User(Integer.parseInt(empIDField.getText()), firstNameField.getText().toLowerCase(), lastNameField.getText().toLowerCase(), positionField.getText().toLowerCase(), usernameField.getText(), defaultPassword, defaultStatus);
-                            String userString = user.toString();
+                            User user = new User(Integer.parseInt(empIDField.getText()), firstNameField.getText().toLowerCase(), lastNameField.getText().toLowerCase(), positionField.getText().toLowerCase(), usernameField.getText().toLowerCase(), defaultPassword, defaultStatus);
                             users.add(user);
                             try {
                                 userList.saveUsersFile();
                                 System.out.println(users);
                                 dispose();
                                 userTable.refresh();
-                                //UserDialog userDialog = new UserDialog();
-                                //userDialog.setVisible(true);
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 System.out.println("save failed.");
@@ -1608,8 +1788,8 @@ public class MainFrame extends JFrame {
                                         e.printStackTrace();
                                     }
                                     JFrame success = new JFrame();
-                                    JOptionPane.showMessageDialog(success, "Your password was changed successfully.");
                                     dispose();
+                                    JOptionPane.showMessageDialog(success, "Your password was changed successfully.");
                                     break;
                                 } else {
                                     JFrame warning = new JFrame();
