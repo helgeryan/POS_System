@@ -26,9 +26,9 @@ change user information, reset user passwords(the reset default password is: def
 Users with a status of 'true' can log in to any register in the system.
 
 Returns can be done by clicking the Returns button on the bottom of the home screen. To load a transaction, click Load Transaction and
-enter the register and saleID(Found on the receipt, or terminal for testing), separated by a comma. The left text area displays the sale as it is
-stored in the system and the right text areas details actions that were taken in the transaction. You must select terminate transaction
-to end the sale.
+enter the register and saleID(Found on the receipt, or terminal for testing), separated by a comma. Returns can be performed from any register,
+regardless of what register the initial sale was on. The left text area displays the sale as it is stored in the system and the
+right text areas details actions that were taken in the transaction. You must select terminate transaction to end the sale.
 
 To print sales reports, visit the Sales Report screen and enter the desired information. Leaving the default selections will export all
 sales stored in the system. To export a specific date, enter the date in the format of "MM-DD-YYYY". Hold Shift while selecting

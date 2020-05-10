@@ -10,11 +10,9 @@ public class InventoryTableModel extends AbstractTableModel {
     private List<Item> items = new ArrayList<>();
 
     private String[] colNames = {"Item Name", "Item ID", "Price", "On Hand", "Threshold", "Supplier", "On Order"};
-    // String[] tableData;
+
 
     public InventoryTableModel() throws FileNotFoundException {
-        //tableData = Inventory.getTableData();
-
         setData();
     }
 
@@ -28,7 +26,7 @@ public class InventoryTableModel extends AbstractTableModel {
             row = row.replaceAll("\\r|\\n", "");
             Scanner rowParser = new Scanner(row);
             rowParser.useDelimiter(",");
-            items.add(new Item(rowParser.next(), Integer.parseInt(rowParser.next()),Double.valueOf(rowParser.next()),Integer.parseInt(rowParser.next()), Integer.parseInt(rowParser.next()),rowParser.next(),Integer.parseInt(rowParser.next())));
+            items.add(new Item(rowParser.next(), Integer.parseInt(rowParser.next()),Double.parseDouble(rowParser.next()),Integer.parseInt(rowParser.next()), Integer.parseInt(rowParser.next()),rowParser.next(),Integer.parseInt(rowParser.next())));
         }
     }
 
