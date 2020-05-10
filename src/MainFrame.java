@@ -54,7 +54,7 @@ public class MainFrame extends JFrame {
 
 
         private JMenuBar menuBar = new JMenuBar();
-        private JMenu file = new JMenu("File");
+        private JMenu fileMenu = new JMenu("File");
 
         private JMenuItem changePwdMenu = new JMenuItem("Change Password.");
         private JMenuItem logoutMenu = new JMenuItem("Logout");
@@ -75,6 +75,46 @@ public class MainFrame extends JFrame {
 
 
         public RegisterInfoPanel(){
+
+            setJMenuBar(menuBar);
+            menuBar.add(fileMenu);
+
+            fileMenu.add(changePwdMenu);
+
+            changePwdMenu.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    try {
+                        ChangePwdDialog changePwdFrame = new ChangePwdDialog();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            fileMenu.add(logoutMenu);
+            logoutMenu.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    int action = JOptionPane.showConfirmDialog(MainFrame.this, "Do you really want to log out?", "Confirm logout", JOptionPane.OK_CANCEL_OPTION);
+                    if(action == JOptionPane.OK_OPTION){
+                        dispose();
+                        try {
+                            LoginFrame loginFrame = new LoginFrame(pos_system);
+                            loginFrame.setVisible(true);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+
+            fileMenu.add(exitMenu);
+            exitMenu.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    int action = JOptionPane.showConfirmDialog(MainFrame.this, "Do you really want to exit?", "Confirm Exit", JOptionPane.OK_CANCEL_OPTION);
+                    if(action == JOptionPane.OK_OPTION){
+                        System.exit(0);
+                    }
+                }
+            });
 
             sales = pos_system.getRegisters().get(registerIndex).getSales();
 
@@ -127,6 +167,7 @@ public class MainFrame extends JFrame {
             ////// Top Row ///////
 
             gc.gridx = 0;
+            gc.gridy = 1;
             gc.anchor = GridBagConstraints.CENTER;
             add(registerIDLabel, gc);
 
@@ -1224,11 +1265,7 @@ public class MainFrame extends JFrame {
 
                 changePWBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
-                        try {
-                            ChangePwdDialog changePwdFrame = new ChangePwdDialog();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
+
                     }
                 });
 
@@ -1486,165 +1523,156 @@ public class MainFrame extends JFrame {
 
 
         }
-        class ChangePwdDialog extends JDialog {
 
-            private UserList userList = new UserList();
-            private ArrayList<User> users = new ArrayList<>();
-            private ChangePwdPanel changePwdPanel = new ChangePwdPanel();
+    }
 
-            public ChangePwdDialog() throws FileNotFoundException {
-                setTitle("Change Password");
-                setResizable(false);
-                setSize(500, 300);
+    class ChangePwdDialog extends JDialog {
 
-                setLocationRelativeTo(null);
-                setVisible(true);
+        private UserList userList = new UserList();
+        private ArrayList<User> users = new ArrayList<>();
+        private ChangePwdPanel changePwdPanel = new ChangePwdPanel();
 
-                add(changePwdPanel, BorderLayout.CENTER);
+        public ChangePwdDialog() throws FileNotFoundException {
+            setTitle("Change Password");
+            setResizable(false);
+            setSize(500, 300);
 
-            }
+            setLocationRelativeTo(null);
+            setVisible(true);
 
-            class ChangePwdPanel extends JPanel {
+            add(changePwdPanel, BorderLayout.CENTER);
 
-                private JLabel usernameLabel;
-                private JTextField usernameField;
-                private JLabel oldPwdLabel;
-                private JPasswordField oldPwdField;
-                private JLabel newPwdLabel;
-                private JPasswordField newPwdField;
-                private JLabel confirmNewPwdLabel;
-                private JPasswordField confirmNewPwdField;
-                private JButton submitBtn;
+        }
 
-                public ChangePwdPanel(){
-                    Dimension dim = getPreferredSize();
-                    dim.width = 500;
-                    dim.height = 300;
-                    setPreferredSize(dim);
+        class ChangePwdPanel extends JPanel {
 
-                    users = userList.getUserList();
+            private JLabel oldPwdLabel;
+            private JPasswordField oldPwdField;
+            private JLabel newPwdLabel;
+            private JPasswordField newPwdField;
+            private JLabel confirmNewPwdLabel;
+            private JPasswordField confirmNewPwdField;
+            private JButton submitBtn;
 
-                    usernameLabel = new JLabel("Username: ");
-                    usernameField = new JTextField(10);
+            public ChangePwdPanel(){
+                Dimension dim = getPreferredSize();
+                dim.width = 500;
+                dim.height = 300;
+                setPreferredSize(dim);
 
-                    oldPwdLabel = new JLabel("Old Password: ");
-                    oldPwdField = new JPasswordField(10);
+                users = userList.getUserList();
 
-                    newPwdLabel = new JLabel("New Password");
-                    newPwdField = new JPasswordField(10);
+                oldPwdLabel = new JLabel("Old Password: ");
+                oldPwdField = new JPasswordField(10);
 
-                    confirmNewPwdLabel = new JLabel("Confirm New Password");
-                    confirmNewPwdField = new JPasswordField(10);
+                newPwdLabel = new JLabel("New Password");
+                newPwdField = new JPasswordField(10);
 
-                    submitBtn = new JButton("Submit");
+                confirmNewPwdLabel = new JLabel("Confirm New Password");
+                confirmNewPwdField = new JPasswordField(10);
+
+                submitBtn = new JButton("Submit");
 
 
 
-                    submitBtn.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent actionEvent) {
-                            User user = new User(0, null, null, null, usernameField.getText(), String.valueOf(oldPwdField.getPassword()), false);
-                            String newPwd;
-                            boolean authstatus = false;
-                            for (User User : users) {
-                                if (User.getUsername().equals(user.getUsername()) && User.getPassword().equals(user.getPassword())) {
-                                    authstatus = true;
-                                    if (String.valueOf(newPwdField.getPassword()).equals(String.valueOf(confirmNewPwdField.getPassword()))) {
-                                        newPwd = String.valueOf(newPwdField.getPassword());
-                                        User.setPassword(newPwd);
-                                        try {
-                                            userList.saveUsersFile();
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                        JFrame success = new JFrame();
-                                        JOptionPane.showMessageDialog(success, "Your password was changed successfully.");
-                                        dispose();
-                                        break;
-                                    } else {
-                                        JFrame warning = new JFrame();
-                                        JOptionPane.showMessageDialog(warning, "The new passwords you entered do not match.");
+                submitBtn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        User user = new User(0, null, null, null, null, String.valueOf(oldPwdField.getPassword()), false);
+                        String newPwd;
+                        user.setUsername(pos_system.getRegisters().get(registerIndex).getCurrUser().getUsername());
+                        boolean authstatus = false;
+                        for (User User : users) {
+                            if (User.getUsername().equals(user.getUsername()) && User.getPassword().equals(user.getPassword())) {
+                                authstatus = true;
+                                if (String.valueOf(newPwdField.getPassword()).equals(String.valueOf(confirmNewPwdField.getPassword()))) {
+                                    newPwd = String.valueOf(newPwdField.getPassword());
+                                    User.setPassword(newPwd);
+                                    try {
+                                        userList.saveUsersFile();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
                                     }
+                                    JFrame success = new JFrame();
+                                    JOptionPane.showMessageDialog(success, "Your password was changed successfully.");
+                                    dispose();
+                                    break;
+                                } else {
+                                    JFrame warning = new JFrame();
+                                    JOptionPane.showMessageDialog(warning, "The new passwords you entered do not match.");
                                 }
                             }
-                            if (!authstatus) {
-                                JFrame warning = new JFrame();
-                                JOptionPane.showMessageDialog(warning, "The existing username or password you entered is incorrect.");
-                            }
                         }
-                    });
-                    layoutChgPwdComponents();
-                }
+                        if (!authstatus) {
+                            JFrame warning = new JFrame();
+                            JOptionPane.showMessageDialog(warning, "The existing username or password you entered is incorrect.");
+                        }
+                    }
+                });
+                layoutChgPwdComponents();
+            }
 
-                private void layoutChgPwdComponents(){
-                    setLayout(new GridBagLayout());
-                    GridBagConstraints gc = new GridBagConstraints();
+            private void layoutChgPwdComponents(){
+                setLayout(new GridBagLayout());
+                GridBagConstraints gc = new GridBagConstraints();
 
-                    gc.weightx = 1;
-                    gc.weighty = 1;
-                    gc.gridy = 1;
+                gc.weightx = 1;
+                gc.weighty = 1;
+                gc.gridy = 1;
 
-                    /////  First Row   //////
+                /////// Second Row //////////
 
-                    gc.gridx = 0;
-                    gc.fill = GridBagConstraints.NONE;
-                    gc.anchor = GridBagConstraints.FIRST_LINE_END;
-                    gc.insets = new Insets(0,0,0,5);
-                    add(usernameLabel, gc);
+                gc.gridy ++;
+                gc.gridx = 0;
+                gc.anchor = GridBagConstraints.FIRST_LINE_END;
+                gc.insets = new Insets(0,0,0,5);
+                add(new JLabel(" "), gc);
 
-                    gc.gridx = 1;
-                    gc.insets = new Insets(0,0,0,0);
-                    gc.anchor = GridBagConstraints.FIRST_LINE_START;
-                    add(usernameField, gc);
+                gc.gridy ++;
+                gc.gridx = 0;
+                gc.anchor = GridBagConstraints.FIRST_LINE_END;
+                gc.insets = new Insets(0,0,0,5);
+                add(oldPwdLabel, gc);
 
-                    /////// Second Row //////////
+                gc.gridx = 1;
+                gc.insets = new Insets(0,0,0,0);
+                gc.anchor = GridBagConstraints.FIRST_LINE_START;
+                add(oldPwdField, gc);
 
-                    gc.gridy ++;
-                    gc.gridx = 0;
-                    gc.anchor = GridBagConstraints.FIRST_LINE_END;
-                    gc.insets = new Insets(0,0,0,5);
-                    add(oldPwdLabel, gc);
+                /////// Third Row //////////
 
-                    gc.gridx = 1;
-                    gc.insets = new Insets(0,0,0,0);
-                    gc.anchor = GridBagConstraints.FIRST_LINE_START;
-                    add(oldPwdField, gc);
+                gc.gridy ++;
+                gc.gridx = 0;
+                gc.anchor = GridBagConstraints.FIRST_LINE_END;
+                gc.insets = new Insets(0,0,0,5);
+                add(newPwdLabel, gc);
 
-                    /////// Third Row //////////
+                gc.gridx = 1;
+                gc.insets = new Insets(0,0,0,0);
+                gc.anchor = GridBagConstraints.FIRST_LINE_START;
+                add(newPwdField, gc);
 
-                    gc.gridy ++;
-                    gc.gridx = 0;
-                    gc.anchor = GridBagConstraints.FIRST_LINE_END;
-                    gc.insets = new Insets(0,0,0,5);
-                    add(newPwdLabel, gc);
+                /////// Forth Row //////////
 
-                    gc.gridx = 1;
-                    gc.insets = new Insets(0,0,0,0);
-                    gc.anchor = GridBagConstraints.FIRST_LINE_START;
-                    add(newPwdField, gc);
+                gc.gridy ++;
+                gc.gridx = 0;
+                gc.anchor = GridBagConstraints.FIRST_LINE_END;
+                gc.insets = new Insets(0,0,0,5);
+                add(confirmNewPwdLabel, gc);
 
-                    /////// Forth Row //////////
+                gc.gridx = 1;
+                gc.insets = new Insets(0,0,0,0);
+                gc.anchor = GridBagConstraints.FIRST_LINE_START;
+                add(confirmNewPwdField, gc);
 
-                    gc.gridy ++;
-                    gc.gridx = 0;
-                    gc.anchor = GridBagConstraints.FIRST_LINE_END;
-                    gc.insets = new Insets(0,0,0,5);
-                    add(confirmNewPwdLabel, gc);
+                /////// Fifth Row //////////
 
-                    gc.gridx = 1;
-                    gc.insets = new Insets(0,0,0,0);
-                    gc.anchor = GridBagConstraints.FIRST_LINE_START;
-                    add(confirmNewPwdField, gc);
+                gc.gridy ++;
 
-                    /////// Fifth Row //////////
-
-                    gc.gridy ++;
-
-                    gc.gridx = 0;
-                    gc.gridwidth = 2;
-                    gc.insets = new Insets(0,0,0,0);
-                    gc.anchor = GridBagConstraints.CENTER;
-                    add(submitBtn, gc);
-                }
+                gc.gridx = 0;
+                gc.gridwidth = 2;
+                gc.insets = new Insets(0,0,0,0);
+                gc.anchor = GridBagConstraints.CENTER;
+                add(submitBtn, gc);
             }
         }
     }
@@ -1653,7 +1681,7 @@ public class MainFrame extends JFrame {
 
         ReturnsTextPanel returnsTextPanel;
         ReturnsBtnPanel returnsBtnPanel;
-        long recalledSaleID;
+        String recalledSaleID;
         boolean transactionStarted = false;
 
         private Hashtable<String, Integer> returnedItems = new Hashtable<>();
@@ -1714,6 +1742,8 @@ public class MainFrame extends JFrame {
             private String rightPaneMessage = "Items being returned: \n";
             private String leftPaneHeader;
             private String itemList;
+            private int registerID;
+            private long saleID;
 
             public ReturnsBtnPanel(){
 
@@ -1721,11 +1751,23 @@ public class MainFrame extends JFrame {
                 loadTranscionBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         boolean saleFound = false;
-                        recalledSaleID = Long.parseLong(JOptionPane.showInputDialog(MainFrame.this, "What is the Sale ID of the transaction?", "Get Sale ID", JOptionPane.INFORMATION_MESSAGE));
-                        for(Sale sale: pos_system.getRegisters().get(registerIndex).getSales()){
-                            if(sale.getId() == recalledSaleID){
-                                saleFound = true;
-                                break;
+                        recalledSaleID = JOptionPane.showInputDialog(MainFrame.this, "What is the register and Sale ID of the transaction? \n Seperate by a comma", "Get Sale ID", JOptionPane.INFORMATION_MESSAGE);
+                        Scanner sc = new Scanner(recalledSaleID);
+                        sc.useDelimiter(",");
+                        registerID = sc.nextInt();
+                        saleID = sc.nextLong();
+
+
+                        for(int r = 0; r< pos_system.getRegisters().size(); r++){
+                            if(pos_system.getRegisters().get(r).getId() == registerID){
+                                registerID = r;
+                                for(int s = 0; s< pos_system.getRegisters().get(r).getSales().size(); s++){
+                                    if(pos_system.getRegisters().get(r).getSales().get(s).getId() == saleID){
+                                        System.out.println("register and sale found");
+                                        saleFound = true;
+                                        break;
+                                    }
+                                }
                             }
                         }
                         if (saleFound){
@@ -1767,8 +1809,8 @@ public class MainFrame extends JFrame {
                 returnSingleItemBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         int lineItemNumber = Integer.parseInt(itemField.getText());
-                        String itemName = pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getItems().get(lineItemNumber).getItemName();
-                        double itemPrice = pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getItems().get(lineItemNumber).getPrice();
+                        String itemName = pos_system.getRegisters().get(registerID).getSale(saleID).getItems().get(lineItemNumber).getItemName();
+                        double itemPrice = pos_system.getRegisters().get(registerID).getSale(saleID).getItems().get(lineItemNumber).getPrice();
                         amountDueBack = amountDueBack + itemPrice;
                         DecimalFormat df = new DecimalFormat("##.##");
                         amountDueBack = Double.parseDouble(df.format(amountDueBack));
@@ -1782,8 +1824,8 @@ public class MainFrame extends JFrame {
                             returnedItems.put(itemName,1);
                         }
 
-                        pos_system.getRegisters().get(registerIndex).returnSingleItem(recalledSaleID, lineItemNumber);
-                        pos_system.getRegisters().get(registerIndex).makeReturnComment(recalledSaleID, itemName + ", -" + itemPrice);
+                        pos_system.getRegisters().get(registerID).returnSingleItem(saleID, lineItemNumber);
+                        pos_system.getRegisters().get(registerID).makeReturnComment(saleID, itemName + ", -" + itemPrice);
                         rightPaneMessage = rightPaneMessage + "Line Item " + lineItemNumber + ": " + itemName + ", -" + itemPrice + "\n";
                         returnsTextPanel.rightTextPane.setText(rightPaneMessage);
                         refreshLeftTextPane();
@@ -1894,7 +1936,7 @@ public class MainFrame extends JFrame {
             }
 
             private void returnAllItems(){
-                List<Item> returnedItemList = pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getItems();
+                List<Item> returnedItemList = pos_system.getRegisters().get(registerID).getSale(saleID).getItems();
                 while(returnedItemList.size()>0){
                     amountDueBack = amountDueBack + returnedItemList.get(0).getPrice();
                     String itemName = returnedItemList.get(0).getItemName();
@@ -1906,26 +1948,26 @@ public class MainFrame extends JFrame {
                     else{
                         returnedItems.put(itemName,1);
                     }
-                    pos_system.getRegisters().get(registerIndex).returnSingleItem(recalledSaleID, 0);
-                    pos_system.getRegisters().get(registerIndex).makeReturnComment(recalledSaleID, itemName + ", -" + itemPrice);
+                    pos_system.getRegisters().get(registerID).returnSingleItem(saleID, 0);
+                    pos_system.getRegisters().get(registerID).makeReturnComment(saleID, itemName + ", -" + itemPrice);
                     returnAllItems();
                 }
                 amountDueBackField.setText("-" + amountDueBack);
             }
 
             private void refreshLeftTextPane(){
-                leftPaneHeader = leftPaneHeader + "Sale '" + recalledSaleID + "' Loaded Sucessfully.\n";
+                leftPaneHeader = leftPaneHeader + "Sale '" + saleID + "' Loaded Sucessfully.\n";
                 returnsTextPanel.leftTextPane.setText(leftPaneMessage);
-                leftPaneHeader = "Sale ID: " + pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getId() +
-                        "; Cashier: " + pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getCashier() +
-                        "; \nDate: " + pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getDate() + "\n";
+                leftPaneHeader = "Sale ID: " + pos_system.getRegisters().get(registerID).getSale(saleID).getId() +
+                        "; Cashier: " + pos_system.getRegisters().get(registerID).getSale(saleID).getCashier() +
+                        "; \nDate: " + pos_system.getRegisters().get(registerID).getSale(saleID).getDate() + "\n";
                 itemList = getItemsInSale();
-                leftPaneMessage = leftPaneHeader + itemList + "\n" + pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getComment() + "\n";
+                leftPaneMessage = leftPaneHeader + itemList + "\n" + pos_system.getRegisters().get(registerID).getSale(saleID).getComment() + "\n";
                 returnsTextPanel.leftTextPane.setText(leftPaneMessage);
             }
 
             private String getItemsInSale(){
-                List<Item> items = pos_system.getRegisters().get(registerIndex).getSale(recalledSaleID).getItems();
+                List<Item> items = pos_system.getRegisters().get(registerID).getSale(saleID).getItems();
                 String itemString = "";
                 for(int i = 0; i< items.size(); i++){
                     itemString = itemString + i + ") " + items.get(i).getItemName() + ", Price: " + items.get(i).getPrice() + "\n";
@@ -1964,11 +2006,11 @@ public class MainFrame extends JFrame {
 
             add(reportingOptionsPanel, BorderLayout.CENTER);
 
-            setSize(new Dimension(500,500));
+            setSize(new Dimension(425,400));
         }
 
         class ReportingOptionsPanel extends JPanel {
-            private JLabel userSelectLabel;
+            private JTextArea instructionsArea;
             private JList<String> userSelect;
             private JLabel firstDateTimeSelectLabel;
             private JTextField firstDateSelectField;
@@ -1984,6 +2026,16 @@ public class MainFrame extends JFrame {
                 UserList userList = new UserList();
                 ArrayList<User> users = userList.getUserList();
                 DefaultListModel dlm = new DefaultListModel();
+
+                instructionsArea = new JTextArea();
+                instructionsArea.setPreferredSize(new Dimension(390,75));
+                instructionsArea.setText("Select the usernames you want to query on the left below. \nHold shift while " +
+                        "selecting users to select multiple users in one report. \nTo query all " +
+                        "available sales records, leave the Date field as 'MM-DD-YYYY'.\nTo query a specific date, enter " +
+                        "the desired date in the same format.");
+                instructionsArea.setLineWrap(true);
+                instructionsArea.setEditable(false);
+                instructionsArea.setFocusable(false);
 
                 userSelect = new JList<>();
 
@@ -2076,26 +2128,36 @@ public class MainFrame extends JFrame {
                 GridBagConstraints gc = new GridBagConstraints();
 
 
+
                 gc.gridy = 0;
-                gc.gridheight = 3;
                 gc.gridx = 0;
+                gc.gridwidth = 4;
+                gc.anchor = GridBagConstraints.CENTER;
+                add(instructionsArea, gc);
+
+                gc.gridwidth = 2;
+                gc.gridheight = 3;
+
+                gc.gridy = 1;
+                gc.gridx = 1;
                 gc.insets = new Insets(5,5,5,5);
-                gc.anchor = GridBagConstraints.LINE_START;
+                gc.anchor = GridBagConstraints.LINE_END;
                 add(userSelect, gc);
 
-                gc.gridx = 1;
+                gc.gridy = 1;
+                gc.gridx = 2;
                 gc.gridheight = 1;
                 gc.anchor = GridBagConstraints.CENTER;
                 add(firstDateTimeSelectLabel, gc);
 
-                gc.gridy = 1;
-                gc.gridx = 1;
+                gc.gridy = 2;
+                gc.gridx = 2;
                 gc.anchor = GridBagConstraints.CENTER;
                 add(firstDateSelectField, gc);
 
                 gc.gridy = 4;
                 gc.gridx = 0;
-                gc.gridwidth = 3;
+                gc.gridwidth = 4;
                 gc.anchor = GridBagConstraints.CENTER;
                 add(submitBtn, gc);
             }

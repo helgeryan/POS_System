@@ -97,7 +97,7 @@ public class Sale {
 
 	@Override
 	public String toString() {
-		String retString = "Sale at Date/Time " + date + "\n";
+		String retString = "\nSale at Date/Time " + date + "\n";
 		retString += "Register: " + registerId + "\n";
 		retString += "Sale ID: " + id + "\n";
 		retString += "Cashier: " + cashier + "\n";
