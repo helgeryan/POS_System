@@ -1244,8 +1244,7 @@ public class MainFrame extends JFrame {
 
         class AdjUserPanel extends JPanel {
 
-            private JButton changePWBtn;
-            private JButton resetPwdBtn;
+            private JButton resetPWBtn;
             private JButton disableUserBtn;
             private JButton newUserBtn;
 
@@ -1256,15 +1255,31 @@ public class MainFrame extends JFrame {
 
                 setPreferredSize(dim);
 
-                changePWBtn = new JButton("Change Password");
-                changePWBtn.setPreferredSize(new Dimension(150,25));
+                resetPWBtn = new JButton("Reset Password");
+                resetPWBtn.setPreferredSize(new Dimension(150,25));
                 disableUserBtn = new JButton("Toggle Status");
                 disableUserBtn.setPreferredSize(new Dimension(150,25));
                 newUserBtn = new JButton("Create New User");
                 newUserBtn.setPreferredSize(new Dimension(150,25));
 
-                changePWBtn.addActionListener(new ActionListener() {
+                resetPWBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
+                        try {
+                            UserList userList = new UserList();
+                            int userID = (int) userTableModel.getValueAt(selectedRow, 0);
+                            for(int i = 0; i < userList.users.size(); i++){
+                                if(userList.users.get(i).getEmpID() == userID){
+                                    userList.users.get(i).setPassword("default1");
+                                    userList.saveUsersFile();
+                                    userTable.refresh();
+                                    JOptionPane.showMessageDialog(MainFrame.this, "Password has been reset.", "Password Change Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                                    break;
+                                }
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
                     }
                 });
@@ -1323,7 +1338,7 @@ public class MainFrame extends JFrame {
                 gc.gridy = 0;
                 gc.gridx = 1;
                 gc.anchor = GridBagConstraints.LINE_START;
-                add(changePWBtn, gc);
+                add(resetPWBtn, gc);
 
                 ////// Second Row //////
 
@@ -2012,8 +2027,8 @@ public class MainFrame extends JFrame {
         class ReportingOptionsPanel extends JPanel {
             private JTextArea instructionsArea;
             private JList<String> userSelect;
-            private JLabel firstDateTimeSelectLabel;
-            private JTextField firstDateSelectField;
+            private JLabel dateSelectLabel;
+            private JTextField dateSelectField;
 
             private JButton submitBtn;
 
@@ -2048,9 +2063,9 @@ public class MainFrame extends JFrame {
                 userSelect.setModel(dlm);
                 userSelect.setSelectedIndex(0);
 
-                firstDateTimeSelectLabel = new JLabel("Desired Date:");
-                firstDateSelectField = new JTextField(10);
-                firstDateSelectField.setText("MM-DD-YYYY");
+                dateSelectLabel = new JLabel("Desired Date:");
+                dateSelectField = new JTextField(10);
+                dateSelectField.setText("MM-DD-YYYY");
 
                 submitBtn = new JButton("Export Report");
 
@@ -2064,7 +2079,7 @@ public class MainFrame extends JFrame {
                             if (!path.substring(path.length() - 4).equals(".txt")){
                                 path = path + ".txt";
                             }
-                            if((userSelect.getSelectedIndex() == 0) && firstDateSelectField.getText().equals("MM-DD-YYYY")){
+                            if((userSelect.getSelectedIndex() == 0) && dateSelectField.getText().equals("MM-DD-YYYY")){
                                 int result = JOptionPane.showConfirmDialog(MainFrame.this, "All available Sales records will be exported. Proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
                                 if(result == 0){
                                     try {
@@ -2074,10 +2089,10 @@ public class MainFrame extends JFrame {
                                     }
                                 }
                             }
-                            else if((userSelect.getSelectedIndex() == 0) && !firstDateSelectField.getText().equals("MM-DD-YYYY")){
+                            else if((userSelect.getSelectedIndex() == 0) && !dateSelectField.getText().equals("MM-DD-YYYY")){
                                 int result = JOptionPane.showConfirmDialog(MainFrame.this, "Sales records for the all users on the selected date will be exported. Proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
                                 if (result == 0) {
-                                    String date = firstDateSelectField.getText();
+                                    String date = dateSelectField.getText();
                                     try {
                                         reports.printSales(pos_system, date, path);
                                     } catch (FileNotFoundException | ParseException e) {
@@ -2085,7 +2100,7 @@ public class MainFrame extends JFrame {
                                     }
                                 }
                             }
-                            else if((userSelect.getSelectedIndex() != 0) && firstDateSelectField.getText().equals("MM-DD-YYYY")){
+                            else if((userSelect.getSelectedIndex() != 0) && dateSelectField.getText().equals("MM-DD-YYYY")){
                                 int result = JOptionPane.showConfirmDialog(MainFrame.this, "All available Sales records will be exported. Proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
                                 if(result == 0){
                                     List<String> users = userSelect.getSelectedValuesList();
@@ -2099,7 +2114,7 @@ public class MainFrame extends JFrame {
                             else if((userSelect.getSelectedIndex() != 0)) {
                                 int result = JOptionPane.showConfirmDialog(MainFrame.this, "Sales records for the selected users on the selected date will be exported. Proceed?", "Confirmation", JOptionPane.YES_NO_OPTION);
                                 if (result == 0) {
-                                    String date = firstDateSelectField.getText();
+                                    String date = dateSelectField.getText();
                                     List<String> users = userSelect.getSelectedValuesList();
                                     try {
                                         reports.printSales(pos_system, date, users, path);
@@ -2148,12 +2163,12 @@ public class MainFrame extends JFrame {
                 gc.gridx = 2;
                 gc.gridheight = 1;
                 gc.anchor = GridBagConstraints.CENTER;
-                add(firstDateTimeSelectLabel, gc);
+                add(dateSelectLabel, gc);
 
                 gc.gridy = 2;
                 gc.gridx = 2;
                 gc.anchor = GridBagConstraints.CENTER;
-                add(firstDateSelectField, gc);
+                add(dateSelectField, gc);
 
                 gc.gridy = 4;
                 gc.gridx = 0;
