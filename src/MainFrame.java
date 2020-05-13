@@ -687,7 +687,6 @@ public class MainFrame extends JFrame {
 
         public InventoryDialog() throws FileNotFoundException {
             setTitle("Inventory Maintenance");
-            //setResizable(false);
             inventoryTablePanel = new InventoryTablePanel();
             adjInvPanel = new AdjInvPanel();
             bottomButtonPanel = new BottomButtonPanel();
@@ -1527,7 +1526,6 @@ public class MainFrame extends JFrame {
 
             NewUserDialog() throws FileNotFoundException {
                 setTitle("New User");
-                //setResizable(false);
                 setSize(500, 500);
                 setLocationRelativeTo(null);
                 setVisible(true);
