@@ -1,4 +1,4 @@
 1,Syed,Naqvi,manager,snaqvi,JavaRocks1,true
-2,John,Adams,manager,jadams,password1,true
+2,John,Adams,manager,jadams,password2,true
 3,kevin,malone,cashier,kmalone,password1,true
 4,jimothy,halpert,cashier,jhalpert,password1,true

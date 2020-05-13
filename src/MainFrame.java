@@ -973,11 +973,12 @@ public class MainFrame extends JFrame {
             private NewItemPanel newItemPanel = new NewItemPanel();
 
             NewItemDialog() throws FileNotFoundException {
+                setLayout(new BorderLayout());
                 setTitle("New Item");
                 setSize(500,500);
-                setResizable(false);
                 setLocationRelativeTo(null);
                 setVisible(true);
+
 
                 add(newItemPanel);
             }
@@ -1020,6 +1021,7 @@ public class MainFrame extends JFrame {
                     dim.width = 400;
                     dim.height = 350;
                     setPreferredSize(dim);
+                    this.setVisible(true);
 
                     itemIDLabel = new JLabel("Item ID: ");
                     itemIDField = new JTextField(20);
@@ -1059,6 +1061,7 @@ public class MainFrame extends JFrame {
                         }
                     });
 
+
                     layoutNewItemComponents();
                 }
 
@@ -1081,6 +1084,7 @@ public class MainFrame extends JFrame {
                     gc.anchor = GridBagConstraints.FIRST_LINE_END;
                     gc.insets = new Insets(0,0,0,5);
                     add(itemNameLabel, gc);
+
 
                     gc.gridx = 1;
                     gc.insets = new Insets(0,0,0,0);
@@ -1259,7 +1263,7 @@ public class MainFrame extends JFrame {
                     }
                 });
 
-                instructionArea = new JTextArea("Select a user on table before\nclicking a button below.");
+                instructionArea = new JTextArea("Select a user on table before clicking a button below.");
                 instructionArea.setPreferredSize(new Dimension(150, 35));
                 instructionArea.setEditable(false);
                 instructionArea.setFocusable(false);
@@ -1523,7 +1527,7 @@ public class MainFrame extends JFrame {
 
             NewUserDialog() throws FileNotFoundException {
                 setTitle("New User");
-                setResizable(false);
+                //setResizable(false);
                 setSize(500, 500);
                 setLocationRelativeTo(null);
                 setVisible(true);
